@@ -1,0 +1,302 @@
+{ "frames": [
+   {
+    "filename": "archer_rot32 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 1.aseprite",
+    "frame": { "x": 64, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 2.aseprite",
+    "frame": { "x": 128, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 3.aseprite",
+    "frame": { "x": 192, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 4.aseprite",
+    "frame": { "x": 256, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 5.aseprite",
+    "frame": { "x": 320, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 6.aseprite",
+    "frame": { "x": 384, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 7.aseprite",
+    "frame": { "x": 448, "y": 0, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 8.aseprite",
+    "frame": { "x": 0, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 9.aseprite",
+    "frame": { "x": 64, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 10.aseprite",
+    "frame": { "x": 128, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 11.aseprite",
+    "frame": { "x": 192, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 12.aseprite",
+    "frame": { "x": 256, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 13.aseprite",
+    "frame": { "x": 320, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 14.aseprite",
+    "frame": { "x": 384, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 15.aseprite",
+    "frame": { "x": 448, "y": 79, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 16.aseprite",
+    "frame": { "x": 0, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 17.aseprite",
+    "frame": { "x": 64, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 18.aseprite",
+    "frame": { "x": 128, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 19.aseprite",
+    "frame": { "x": 192, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 20.aseprite",
+    "frame": { "x": 256, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 21.aseprite",
+    "frame": { "x": 320, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 22.aseprite",
+    "frame": { "x": 384, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 23.aseprite",
+    "frame": { "x": 448, "y": 158, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 24.aseprite",
+    "frame": { "x": 0, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 25.aseprite",
+    "frame": { "x": 64, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 26.aseprite",
+    "frame": { "x": 128, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 27.aseprite",
+    "frame": { "x": 192, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 28.aseprite",
+    "frame": { "x": 256, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 29.aseprite",
+    "frame": { "x": 320, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 30.aseprite",
+    "frame": { "x": 384, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   },
+   {
+    "filename": "archer_rot32 31.aseprite",
+    "frame": { "x": 448, "y": 237, "w": 64, "h": 79 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 79 },
+    "sourceSize": { "w": 64, "h": 79 },
+    "duration": 60
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "archer_rot32_sheet.png",
+  "format": "I8",
+  "size": { "w": 512, "h": 316 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "rotate", "from": 0, "to": 31, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

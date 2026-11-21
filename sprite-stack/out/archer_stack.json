@@ -1,0 +1,16 @@
+{
+  "slice_w": 36,
+  "slice_h": 36,
+  "slices": 32,
+  "directions": 32,
+  "tilt": 0.65,
+  "frame_w": 64,
+  "frame_h": 79,
+  "animations": {
+    "idle": 4,
+    "run": 6,
+    "back": 6,
+    "shoot": 6
+  },
+  "split_upper_lower": true
+}
