@@ -1,0 +1,95 @@
+name: Syntax & Asset Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JS modules, MCP script, inline scripts & local asset links
+        run: |
+          node - <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const vm = require('node:vm');
+
+          const root = process.cwd();
+          const pgDir = path.join(root, 'playground');
+          const modDir = path.join(pgDir, 'modules');
+          const failures = [];
+
+          for (const f of fs.readdirSync(modDir).filter(x => x.endsWith('.js')).sort()) {
+            const p = path.join(modDir, f);
+            try {
+              new vm.Script(fs.readFileSync(p, 'utf8'), { filename: p });
+              console.log('OK module:', f);
+            } catch (err) {
+              failures.push(`modules/${f}: ${err.message}`);
+            }
+          }
+
+          const htmlPath = path.join(pgDir, 'index.html');
+          const html = fs.readFileSync(htmlPath, 'utf8');
+
+          // Validate local <script src="..."> references
+          for (const m of html.matchAll(/<script[^>]+src=["']([^"']+)["'][^>]*>/gi)) {
+            const src = m[1];
+            if (/^https?:\/\//i.test(src)) continue;
+            const resolved = path.resolve(pgDir, src);
+            if (!fs.existsSync(resolved)) {
+              failures.push(`Missing script asset: ${src}`);
+            } else {
+              console.log('OK script ref:', src);
+            }
+          }
+
+          // Validate local font asset references
+          for (const m of html.matchAll(/url\(["']?([^"')]+)["']?\)/gi)) {
+            const ref = m[1];
+            if (/^(data:|https?:\/\/)/i.test(ref)) continue;
+            const resolved = path.resolve(pgDir, ref);
+            if (!fs.existsSync(resolved)) {
+              failures.push(`Missing CSS asset: ${ref}`);
+            } else {
+              console.log('OK asset ref:', ref);
+            }
+          }
+
+          // Validate inline <script> blocks
+          const re = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
+          let idx = 0;
+          let match;
+          while ((match = re.exec(html)) !== null) {
+            try {
+              new vm.Script(match[1], { filename: `playground/index.html#script[${idx}]` });
+              console.log(`OK inline script #${idx}`);
+            } catch (err) {
+              failures.push(`playground/index.html#script[${idx}]: ${err.message}`);
+            }
+            idx++;
+          }
+
+          if (idx === 0) failures.push('No inline <script> blocks found in playground/index.html');
+
+          if (failures.length) {
+            console.error('CI verification failed:\n' + failures.join('\n'));
+            process.exit(1);
+          }
+          console.log('All syntax and asset checks passed.');
+          EOF
+          node --check mcp/sakura-studio-server.mjs
