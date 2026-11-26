@@ -712,13 +712,13 @@ const BAYER4 = [
   15,  7, 13,  5,
 ];
 // Pre-baked 96x96 Bayer4 dither hole mask (built ONCE at startup -> replaces per-frame GPU getImageData stall with 1 instant GPU destination-out blit!)
-const DITHER_R = 46, DITHER_HALF = 48;
+const DITHER_R = 35, DITHER_HALF = 48; // Slightly tighter see-through bubble (was 46px)
 const ditherMaskCv = document.createElement('canvas'); ditherMaskCv.width = DITHER_HALF * 2; ditherMaskCv.height = DITHER_HALF * 2;
 (function buildDitherMask() {
   const mg = ditherMaskCv.getContext('2d');
   const id = mg.createImageData(DITHER_HALF * 2, DITHER_HALF * 2);
   const d = id.data;
-  const CORE = 20;
+  const CORE = 14;
   for (let y = 0; y < DITHER_HALF * 2; y++) {
     const dy = y - DITHER_HALF;
     for (let x = 0; x < DITHER_HALF * 2; x++) {
@@ -7226,32 +7226,47 @@ function drawFloorDecalsSlice(g, z, ox, oy) {
 // Artificial meadow ovals removed — dense grass clusters grow organically directly out of the 3D biome floor!
 function drawMeadowsSlice() {}
 
-function drawWheatSlice(g, z, ox, oy) {
-  for (let i = 0; i < activeWheat.length; i++) {
-    const wf = activeWheat[i];
+function drawWheatSlice(g, z, ox, oy, list = activeWheat) {
+  for (let i = 0; i < list.length; i++) {
+    const wf = list[i];
     const wx = wf.x - ox, wy = wf.y - oy;
     if (z === 1) {
-      // 3D Terraced earthen berm base
-      g.fillStyle = '#5f4928';
+      // 3D Terraced earthen retaining wall base
+      g.fillStyle = '#4a371d';
       g.fillRect(wx - 4, wy - 4, wf.w + 8, wf.h + 8);
-    } else if (z === 2) {
-      // Raised earthen border + rich dark tilled soil bed + plowed furrows
-      g.fillStyle = '#8b7142';
+      g.fillStyle = '#634c29';
       g.fillRect(wx - 3, wy - 3, wf.w + 6, wf.h + 6);
-      g.fillStyle = '#5d4426';
+    } else if (z === 2) {
+      // Raised 4-sided earthen border + rich dark tilled soil bed + plowed furrows
+      g.fillStyle = '#856b3d';
+      g.fillRect(wx - 3, wy - 3, wf.w + 6, wf.h + 6);
+      g.fillStyle = '#5a4123';
       g.fillRect(wx, wy, wf.w, wf.h);
-      g.fillStyle = '#473219';
+      g.fillStyle = '#432e16';
       for (let fy = wy + 6; fy <= wy + wf.h - 6; fy += 10) {
         g.fillRect(wx + 3, fy, wf.w - 6, 3);
       }
     } else if (z === 3) {
-      // Raised sunlit furrow ridges & top berm edge
-      g.fillStyle = '#a38752';
-      g.fillRect(wx - 2, wy - 2, wf.w + 4, 2);
-      g.fillRect(wx - 2, wy + wf.h, wf.w + 4, 2);
-      g.fillStyle = '#785b35';
+      // Full 4-sided raised berm top + sunlit furrow ridges (matches z=3 elevation of biome ground)
+      g.fillStyle = '#9c804b';
+      g.fillRect(wx - 3, wy - 3, wf.w + 6, 3);
+      g.fillRect(wx - 3, wy + wf.h, wf.w + 6, 3);
+      g.fillRect(wx - 3, wy, 3, wf.h);
+      g.fillRect(wx + wf.w, wy, 3, wf.h);
+      g.fillStyle = '#755832';
       for (let fy = wy + 4; fy <= wy + wf.h - 8; fy += 10) {
         g.fillRect(wx + 3, fy, wf.w - 6, 2);
+      }
+    } else if (z === 4) {
+      // Sunlit top-lip highlight on all 4 berm edges + furrow crest highlights (prevents z=4 biome overlap!)
+      g.fillStyle = '#b5985f';
+      g.fillRect(wx - 2, wy - 2, wf.w + 4, 2);
+      g.fillRect(wx - 2, wy + wf.h, wf.w + 4, 2);
+      g.fillRect(wx - 2, wy, 2, wf.h);
+      g.fillRect(wx + wf.w, wy, 2, wf.h);
+      g.fillStyle = '#88693e';
+      for (let fy = wy + 4; fy <= wy + wf.h - 8; fy += 10) {
+        g.fillRect(wx + 4, fy, wf.w - 8, 1);
       }
     }
   }
@@ -8018,6 +8033,14 @@ function loop(ts) {
     if (sr) { for (let i = 0; i < sr.length; i++) clipCourtyardRects.push(sr[i]); }
   }
   const hasPondClip = pondVisible && pondWaterRects.length > 0;
+  const visWheat = [];
+  for (let wi = 0; wi < activeWheat.length; wi++) {
+    const wf = activeWheat[wi];
+    const wcx = wf.x + wf.w * 0.5, wcy = wf.y + wf.h * 0.5;
+    if (Math.hypot(wcx - rCamX, wcy - rCamY) <= visGroundR + Math.hypot(wf.w, wf.h) * 0.5 + 32) {
+      visWheat.push(wf);
+    }
+  }
   const clipSpan = (visGroundR + 64) * 2;
 
   for (let z = 0; z < GROUND_SLICES; z++) {
@@ -8027,8 +8050,9 @@ function loop(ts) {
     g.scale(1, tilt);
     g.rotate(camAngle);
     const needCyClip = (z >= 3 && clipCourtyardRects.length > 0);
+    const needWheatClip = (z >= 3 && visWheat.length > 0);
     const needPondClip = (z >= 1 && hasPondClip);
-    if (needCyClip || needPondClip) {
+    if (needCyClip || needWheatClip || needPondClip) {
       g.save();
       g.beginPath();
       g.rect(-visGroundR - 64, -visGroundR - 64, clipSpan, clipSpan);
@@ -8036,6 +8060,12 @@ function loop(ts) {
         for (let ri = 0; ri < clipCourtyardRects.length; ri++) {
           const sr = clipCourtyardRects[ri];
           g.rect(sr[0] - rCamX, sr[1] - rCamY, sr[2], sr[3]);
+        }
+      }
+      if (needWheatClip) {
+        for (let ri = 0; ri < visWheat.length; ri++) {
+          const wf = visWheat[ri];
+          g.rect(wf.x - 4 - rCamX, wf.y - 4 - rCamY, wf.w + 8, wf.h + 8);
         }
       }
       if (needPondClip) {
@@ -8050,7 +8080,6 @@ function loop(ts) {
         g.drawImage(gc.cvs[z], gc.wx - rCamX, gc.wy - rCamY);
       }
       if (z === 3) drawFloorDecalsSlice(g, z, rCamX, rCamY);
-      if (z >= 1 && z <= 3) drawWheatSlice(g, z, rCamX, rCamY);
       g.restore();
     } else {
       for (let ci = 0; ci < visGroundChunks.length; ci++) {
@@ -8058,8 +8087,8 @@ function loop(ts) {
         g.drawImage(gc.cvs[z], gc.wx - rCamX, gc.wy - rCamY);
       }
       if (z === 3) drawFloorDecalsSlice(g, z, rCamX, rCamY);
-      if (z >= 1 && z <= 3) drawWheatSlice(g, z, rCamX, rCamY);
     }
+    if (z >= 1 && z <= 4 && visWheat.length > 0) drawWheatSlice(g, z, rCamX, rCamY, visWheat);
     if (centralCyVisible && (hasCentralCourtyard || z > 0)) {
       g.drawImage(centralCySlices[z], CY_X0 - 4 - rCamX, CY_Y0 - 4 - rCamY);
     }
@@ -8402,15 +8431,20 @@ function loop(ts) {
       g.fillRect(bx - 3, by - 2, 7, 5); g.fillRect(bx - 1, by - 4, 3, 9);
       g.fillStyle = '#ffffff';
       g.fillRect(bx - 1, by - 2, 2, 2);
-    } else if (q.kind === 'prop_trunk') {
+    } else if (q.kind === 'prop_trunk' || q.kind === 'prop_canopy') {
       const p = q.obj;
-      const srcCanvas = getCachedStack(p.kind, p.rot, camAngle, tilt, null, 0, 0, 0, p.scale || 1.0, 'trunk');
-      g.drawImage(srcCanvas, Math.round(q.sx - srcCanvas._ox), Math.round(q.sy - srcCanvas._oy));
-    } else if (q.kind === 'prop_canopy') {
-      const p = q.obj;
-      const wFrame = (Math.floor((tSec * 1.05 + p.x * 0.012 + p.y * 0.008) % 4 + 4) % 4);
-      const srcCanvas = getCachedStack(p.kind, p.rot, camAngle, tilt, wFrame, 0, 0, 0, p.scale || 1.0, 'canopy');
-      g.drawImage(srcCanvas, Math.round(q.sx - srcCanvas._ox), Math.round(q.sy - srcCanvas._oy));
+      const isCanopy = q.kind === 'prop_canopy';
+      const wFrame = isCanopy ? (Math.floor((tSec * 1.05 + p.x * 0.012 + p.y * 0.008) % 4 + 4) % 4) : null;
+      const srcCanvas = getCachedStack(p.kind, p.rot, camAngle, tilt, wFrame, 0, 0, 0, p.scale || 1.0, isCanopy ? 'canopy' : 'trunk');
+      const dx = Math.round(q.sx - srcCanvas._ox), dy = Math.round(q.sy - srcCanvas._oy);
+      // Tree trunks & canopies drawn OVER the heroine get the same Bayer see-through bubble as buildings.
+      // Only when the heroine's body center lies inside the sprite bounds (no stray holes in canopies behind her).
+      const pcx = plSx + shkX, pcy = plSy + shkY - 16;
+      if (q.depth > plDepth && pcx >= dx && pcx < dx + srcCanvas.width && pcy >= dy && pcy < dy + srcCanvas.height) {
+        drawWithPlayerDitherWindow(g, srcCanvas, dx, dy, plSx + shkX, plSy + shkY);
+      } else {
+        g.drawImage(srcCanvas, dx, dy);
+      }
     } else if (q.kind === 'prop') {
       const p = q.obj, pm = PROP_META[p.kind];
       const wFrame = pm.isTree ? (Math.floor((tSec * 1.05 + p.x * 0.012 + p.y * 0.008) % 4 + 4) % 4) : null;
