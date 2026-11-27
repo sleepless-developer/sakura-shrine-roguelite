@@ -3214,63 +3214,176 @@ const WATER_U32 = {
   lily:     _packWaterU32(72,  138, 56),
   lilyHi:   _packWaterU32(106, 174, 78),
   lotus:    _packWaterU32(252, 168, 196),
+  springHi: _packWaterU32(236, 252, 255),
 };
-const RIVER_PERIOD = 1950;
-const LAKE_CELL = 480;
-const forestWaterCfg = {
-  offY: 590, phA1: 0.4, phA2: 1.9, phAW: 0.7,
-  offX: -620, phB1: 1.2, phB2: 3.1, phBW: 2.1,
-  seed: 1,
-};
+const LAKE_CELL = 520;
+const forestWaterCfg = { seed: 1 };
 const _forestLakeCache = new Map();
+const _watershedCache = new Map();
 
 function initForestWater(seed) {
-  const rng = makeRng((seed * 2654435761 + 918273) >>> 0);
   forestWaterCfg.seed = seed;
-  forestWaterCfg.offY = (rng() < 0.5 ? 1 : -1) * (540 + Math.round(rng() * 140));
-  forestWaterCfg.offX = (rng() < 0.5 ? 1 : -1) * (560 + Math.round(rng() * 150));
-  forestWaterCfg.phA1 = rng() * Math.PI * 2;
-  forestWaterCfg.phA2 = rng() * Math.PI * 2;
-  forestWaterCfg.phAW = rng() * Math.PI * 2;
-  forestWaterCfg.phB1 = rng() * Math.PI * 2;
-  forestWaterCfg.phB2 = rng() * Math.PI * 2;
-  forestWaterCfg.phBW = rng() * Math.PI * 2;
   _forestLakeCache.clear();
+  _watershedCache.clear();
 }
 
-function getRiverAY(wx) {
-  return forestWaterCfg.offY
-    + Math.sin(wx * 0.0023 + forestWaterCfg.phA1) * 125
-    + Math.sin(wx * 0.0057 + forestWaterCfg.phA2) * 44;
+// Build one complete logical River Watershed: Rocky Mountain Spring (Исток) -> Meandering Widening Stream (+ Bridge) -> Forest Lake Delta (Устье)!
+function buildWatershedSpec(sx, sy, ex, ey, bend, rng) {
+  const dx = ex - sx, dy = ey - sy;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const px = -uy, py = ux;
+  const mx = (sx + ex) * 0.5 + px * bend;
+  const my = (sy + ey) * 0.5 + py * bend;
+  const wobP = rng() * Math.PI * 2;
+  const N = 16;
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    const mt = 1 - t;
+    const bx = mt * mt * sx + 2 * mt * t * mx + t * t * ex;
+    const by = mt * mt * sy + 2 * mt * t * my + t * t * ey;
+    const wob = Math.sin(t * Math.PI * 2.4 + wobP) * Math.sin(t * Math.PI) * 14;
+    // Natural widening: narrow spring brook (9.5px) -> midstream (17px) -> flared river delta mouth (27px)
+    const hw = 9.5 + t * 8.5 + (t > 0.72 ? Math.pow((t - 0.72) / 0.28, 1.6) * 10.5 : 0);
+    pts.push({ x: bx + px * wob, y: by + py * wob, hw });
+  }
+  // Source: Rocky Mountain Spring Pool (Исток)
+  const srcR = 23 + rng() * 6;
+  const upAng = Math.atan2(pts[0].y - pts[1].y, pts[0].x - pts[1].x);
+  // Mouth: Organic 2-Lobe Forest Lake (Устье) seamlessly joined to the flared river delta!
+  const endAng = Math.atan2(pts[N].y - pts[N - 1].y, pts[N].x - pts[N - 1].x);
+  const lakeRadX = 58 + rng() * 20;
+  const lakeRadY = 48 + rng() * 16;
+  const lakeCx = ex + Math.cos(endAng) * (lakeRadX * 0.58);
+  const lakeCy = ey + Math.sin(endAng) * (lakeRadY * 0.58);
+  const lake = {
+    cx: lakeCx, cy: lakeCy, radX: lakeRadX, radY: lakeRadY,
+    l2x: (rng() - 0.5) * lakeRadX * 0.75,
+    l2y: (rng() - 0.5) * lakeRadY * 0.70,
+    rad2X: lakeRadX * 0.76, rad2Y: lakeRadY * 0.74,
+    wobF: 3 + Math.floor(rng() * 3), wobP: rng() * 6.283,
+  };
+  // Midstream Bridge anchor (t = 0.50)
+  const bPt = pts[N >> 1], bPrev = pts[(N >> 1) - 1], bNext = pts[(N >> 1) + 1];
+  const bTang = Math.atan2(bNext.y - bPrev.y, bNext.x - bPrev.x);
+  const bridge = { x: bPt.x, y: bPt.y, rot: bTang + Math.PI * 0.5 };
+  let minX = Math.min(sx - srcR - 20, lakeCx - lakeRadX * 1.5);
+  let maxX = Math.max(sx + srcR + 20, lakeCx + lakeRadX * 1.5);
+  let minY = Math.min(sy - srcR - 20, lakeCy - lakeRadY * 1.5);
+  let maxY = Math.max(sy + srcR + 20, lakeCy + lakeRadY * 1.5);
+  for (let i = 0; i <= N; i++) {
+    const pad = pts[i].hw + 14;
+    if (pts[i].x - pad < minX) minX = pts[i].x - pad;
+    if (pts[i].x + pad > maxX) maxX = pts[i].x + pad;
+    if (pts[i].y - pad < minY) minY = pts[i].y - pad;
+    if (pts[i].y + pad > maxY) maxY = pts[i].y + pad;
+  }
+  return { sx, sy, srcR, upAng, ex, ey, pts, lake, bridge, minX, maxX, minY, maxY };
 }
-function getRiverAHalfW(wx) {
-  return 18.5 + Math.sin(wx * 0.0075 + forestWaterCfg.phAW) * 4.5;
+
+function getWatershedsForRegion(rx, ry) {
+  const k = ((rx + 4096) << 13) ^ (ry + 4096);
+  if (_watershedCache.has(k)) return _watershedCache.get(k);
+  const out = [];
+  const seed = forestWaterCfg.seed;
+  const rng = makeRng((Math.imul(seed, 1664525) ^ Math.imul(rx, 374761393) ^ Math.imul(ry, 668265263) ^ 0x51A7E21) >>> 0);
+
+  if (rx === 0 && ry === 0) {
+    // Two complete scenic Spring -> River (+ Bridge) -> Forest Lake watersheds flanking the central sanctuary (100% clear of walls & wheat!)
+    const flipS = rng() < 0.5 ? 1 : -1;
+    out.push(buildWatershedSpec(-250 * flipS, 558, 225 * flipS, 578, (rng() < 0.5 ? 1 : -1) * 52, rng));
+    const flipN = rng() < 0.5 ? 1 : -1;
+    out.push(buildWatershedSpec(245 * flipN, -562, -230 * flipN, -576, (rng() < 0.5 ? 1 : -1) * 50, rng));
+    _watershedCache.set(k, out);
+    return out;
+  }
+
+  const regW = REGION_CHUNKS * CHUNK_SZ; // 1260
+  const rCx = rx * regW, rCy = ry * regW;
+  const reg = getRegionSpec(rx, ry);
+  const hasCy = reg && reg.feature && reg.feature.startsWith('courtyard_');
+  const cyWx = hasCy ? reg.targetCx * CHUNK_SZ : 1e9;
+  const cyWy = hasCy ? reg.targetCy * CHUNK_SZ : 1e9;
+
+  // Try up to 8 courtyard-free candidate courses inside this macro-region so NO river is EVER cut off!
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const horiz = rng() < 0.5;
+    const dir = rng() < 0.5 ? 1 : -1;
+    const span = 370 + rng() * 150;
+    const offA = (rng() - 0.5) * 460;
+    const offB = (rng() - 0.5) * 620;
+    const sx = horiz ? (rCx + offA - dir * span * 0.5) : (rCx + offB);
+    const sy = horiz ? (rCy + offB) : (rCy + offA - dir * span * 0.5);
+    const ex = horiz ? (sx + dir * span) : (sx + (rng() - 0.5) * 140);
+    const ey = horiz ? (sy + (rng() - 0.5) * 140) : (sy + dir * span);
+    const bend = (rng() - 0.5) * 150;
+    const ws = buildWatershedSpec(sx, sy, ex, ey, bend, rng);
+
+    let ok = true;
+    const checkPt = (px0, py0, pad) => {
+      if (Math.max(Math.abs(px0), Math.abs(py0)) < 465 + pad) return false;
+      if (hasCy && Math.max(Math.abs(px0 - cyWx), Math.abs(py0 - cyWy)) < 255 + pad) return false;
+      return true;
+    };
+    if (!checkPt(ws.sx, ws.sy, ws.srcR + 18) || !checkPt(ws.lake.cx, ws.lake.cy, ws.lake.radX + 18)) ok = false;
+    for (let i = 0; ok && i < ws.pts.length; i += 2) {
+      if (!checkPt(ws.pts[i].x, ws.pts[i].y, ws.pts[i].hw + 14)) ok = false;
+    }
+    if (ok) { out.push(ws); break; }
+  }
+  _watershedCache.set(k, out);
+  return out;
 }
-function getRiverBX(wy) {
-  return forestWaterCfg.offX
-    + Math.sin(wy * 0.0021 + forestWaterCfg.phB1) * 135
-    + Math.sin(wy * 0.0053 + forestWaterCfg.phB2) * 46;
+
+function evalLakeSignedDepth(lk, wx, wy) {
+  const dx = wx - lk.cx, dy = wy - lk.cy;
+  if (Math.abs(dx) > lk.radX * 1.65 || Math.abs(dy) > lk.radY * 1.65) return -60;
+  const q1 = (dx * dx) / (lk.radX * lk.radX) + (dy * dy) / (lk.radY * lk.radY);
+  const dx2 = dx - lk.l2x, dy2 = dy - lk.l2y;
+  const q2 = (dx2 * dx2) / (lk.rad2X * lk.rad2X) + (dy2 * dy2) / (lk.rad2Y * lk.rad2Y);
+  const wob = Math.sin(Math.atan2(dy, dx) * lk.wobF + lk.wobP) * 0.11;
+  const norm = Math.sqrt(Math.min(q1, q2)) + wob;
+  return (1.0 - norm) * Math.min(lk.radX, lk.radY);
 }
-function getRiverBHalfW(wy) {
-  return 17.5 + Math.sin(wy * 0.0071 + forestWaterCfg.phBW) * 4.2;
+
+function evalWatershedDepth(ws, wx, wy) {
+  if (wx < ws.minX - 12 || wx > ws.maxX + 12 || wy < ws.minY - 12 || wy > ws.maxY + 12) return -60;
+  // 1) Mountain Spring Headwater Pool (Исток)
+  const sdx = wx - ws.sx, sdy = wy - ws.sy;
+  const sWob = Math.sin(Math.atan2(sdy, sdx) * 4 + 0.7) * 2.4;
+  let best = (ws.srcR + sWob) - Math.hypot(sdx, sdy);
+  // 2) River Lake Delta Mouth (Устье)
+  const ld = evalLakeSignedDepth(ws.lake, wx, wy);
+  if (ld > best) best = ld;
+  // 3) Winding River Segments (smoothly interpolated width from spring neck -> delta mouth!)
+  const pts = ws.pts;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1];
+    const abx = b.x - a.x, aby = b.y - a.y;
+    const len2 = abx * abx + aby * aby || 1;
+    let t = ((wx - a.x) * abx + (wy - a.y) * aby) / len2;
+    if (t < 0) t = 0; else if (t > 1) t = 1;
+    const cx = a.x + abx * t, cy = a.y + aby * t;
+    const hw = a.hw + (b.hw - a.hw) * t;
+    const wd = hw - Math.hypot(wx - cx, wy - cy);
+    if (wd > best) best = wd;
+  }
+  return best;
 }
-function _wrapDelta(d, period) {
-  let r = ((d + period * 0.5) % period + period) % period - period * 0.5;
-  return r;
-}
+
 function getForestLakeSpec(lcx, lcy) {
   const k = ((lcx + 16384) << 15) ^ (lcy + 16384);
   if (_forestLakeCache.has(k)) return _forestLakeCache.get(k);
   if (Math.abs(lcx) <= 1 && Math.abs(lcy) <= 1) { _forestLakeCache.set(k, null); return null; }
   const h = h2Wang(lcx, lcy, 743 + (forestWaterCfg.seed & 1023));
-  if (h > 0.42) { _forestLakeCache.set(k, null); return null; }
+  if (h > 0.28) { _forestLakeCache.set(k, null); return null; }
   const h2 = h2Wang(lcx, lcy, 787);
   const h3 = h2Wang(lcx, lcy, 821);
   const h4 = h2Wang(lcx, lcy, 859);
-  const cx = lcx * LAKE_CELL + (h2 - 0.5) * 190;
-  const cy = lcy * LAKE_CELL + (h3 - 0.5) * 190;
-  // Never place a lake inside central sanctuary or an outer courtyard feature chunk
-  if (Math.max(Math.abs(cx), Math.abs(cy)) < 470) { _forestLakeCache.set(k, null); return null; }
+  const cx = lcx * LAKE_CELL + (h2 - 0.5) * 180;
+  const cy = lcy * LAKE_CELL + (h3 - 0.5) * 180;
+  if (Math.max(Math.abs(cx), Math.abs(cy)) < 485) { _forestLakeCache.set(k, null); return null; }
   const cCx = Math.round(cx / CHUNK_SZ), cCy = Math.round(cy / CHUNK_SZ);
   const rx = Math.round(cCx / REGION_CHUNKS), ry = Math.round(cCy / REGION_CHUNKS);
   const reg = getRegionSpec(rx, ry);
@@ -3278,68 +3391,67 @@ function getForestLakeSpec(lcx, lcy) {
     const tWx = reg.targetCx * CHUNK_SZ, tWy = reg.targetCy * CHUNK_SZ;
     if (Math.max(Math.abs(cx - tWx), Math.abs(cy - tWy)) < 290) { _forestLakeCache.set(k, null); return null; }
   }
-  const radX = 48 + h4 * 26;
-  const radY = 38 + h2Wang(lcx, lcy, 907) * 22;
+  const radX = 46 + h4 * 24;
+  const radY = 38 + h2Wang(lcx, lcy, 907) * 20;
   const spec = {
     cx, cy, radX, radY,
     l2x: (h2 - 0.5) * radX * 0.72,
     l2y: (h3 - 0.5) * radY * 0.68,
-    rad2X: radX * 0.74,
-    rad2Y: radY * 0.72,
-    wobF: 3 + (Math.floor(h4 * 3)),
-    wobP: h2 * 6.283,
+    rad2X: radX * 0.74, rad2Y: radY * 0.72,
+    wobF: 3 + Math.floor(h4 * 3), wobP: h2 * 6.283,
   };
   _forestLakeCache.set(k, spec);
   return spec;
 }
 
 // Fast zero-allocation signed water depth (>0 inside water, <=0 on dry land)
+// Evaluates complete logical Spring->River->Lake watersheds (ZERO chopped-off dead-end rivers!)
 function sampleForestWater(wx, wy) {
-  // Smoothly suppress all outer forest water around central sanctuary (435px) & central outer wheat fields!
   const centralBox = Math.max(Math.abs(wx), Math.abs(wy));
-  if (centralBox < 445) return -40;
-  // Suppress around any outer procedural courtyard in this macro-region
-  const cCx = Math.round(wx / CHUNK_SZ), cCy = Math.round(wy / CHUNK_SZ);
-  const rx = Math.round(cCx / REGION_CHUNKS), ry = Math.round(cCy / REGION_CHUNKS);
-  const reg = getRegionSpec(rx, ry);
-  let cyMargin = 999;
-  if (reg && reg.feature && reg.feature.startsWith('courtyard_')) {
-    const tWx = reg.targetCx * CHUNK_SZ, tWy = reg.targetCy * CHUNK_SZ;
-    cyMargin = Math.max(Math.abs(wx - tWx), Math.abs(wy - tWy)) - 245;
-    if (cyMargin < 0) return -40;
+  if (centralBox < 435) return -40;
+  let best = -60;
+
+  // 1) Nearby Macro-Region Watersheds (check own & adjacent macro-regions for seamless border crossing)
+  const regW = REGION_CHUNKS * CHUNK_SZ;
+  const rx0 = Math.round(wx / regW), ry0 = Math.round(wy / regW);
+  for (let dry = -1; dry <= 1; dry++) {
+    for (let drx = -1; drx <= 1; drx++) {
+      const list = getWatershedsForRegion(rx0 + drx, ry0 + dry);
+      for (let wi = 0; wi < list.length; wi++) {
+        const d = evalWatershedDepth(list[wi], wx, wy);
+        if (d > best) best = d;
+      }
+    }
   }
 
-  // 1) Winding East-West Forest River A (repeating every RIVER_PERIOD)
-  const dA = Math.abs(_wrapDelta(wy - getRiverAY(wx), RIVER_PERIOD));
-  let best = getRiverAHalfW(wx) - dA;
-
-  // 2) Winding North-South Forest River B (repeating every RIVER_PERIOD)
-  const dB = Math.abs(_wrapDelta(wx - getRiverBX(wy), RIVER_PERIOD));
-  const wdB = getRiverBHalfW(wy) - dB;
-  if (wdB > best) best = wdB;
-
-  // 3) Procedural Organic Forest Lakes in nearby LAKE_CELLs
+  // 2) Secluded standalone Forest Ponds in outer forest cells
   const lcx = Math.round(wx / LAKE_CELL), lcy = Math.round(wy / LAKE_CELL);
   for (let oy = -1; oy <= 1; oy++) {
     for (let ox = -1; ox <= 1; ox++) {
       const lk = getForestLakeSpec(lcx + ox, lcy + oy);
       if (!lk) continue;
-      const dx = wx - lk.cx, dy = wy - lk.cy;
-      if (Math.abs(dx) > lk.radX * 1.65 || Math.abs(dy) > lk.radY * 1.65) continue;
-      const q1 = (dx * dx) / (lk.radX * lk.radX) + (dy * dy) / (lk.radY * lk.radY);
-      const dx2 = dx - lk.l2x, dy2 = dy - lk.l2y;
-      const q2 = (dx2 * dx2) / (lk.rad2X * lk.rad2X) + (dy2 * dy2) / (lk.rad2Y * lk.rad2Y);
-      const wob = Math.sin(Math.atan2(dy, dx) * lk.wobF + lk.wobP) * 0.11;
-      const norm = Math.sqrt(Math.min(q1, q2)) + wob;
-      const lakeD = (1.0 - norm) * Math.min(lk.radX, lk.radY);
-      if (lakeD > best) best = lakeD;
+      const d = evalLakeSignedDepth(lk, wx, wy);
+      if (d > best) best = d;
     }
   }
-
-  // Taper smoothly near sanctuary / outer courtyard boundaries so rivers don't slice abruptly
-  const edgeFade = Math.min(centralBox - 445, cyMargin);
-  if (edgeFade < 36) best -= (36 - edgeFade) * 0.9;
   return best;
+}
+
+// Helper: check if (wx, wy) is near any Mountain Spring Headwater (for bubbling spring concentric rings!)
+function isNearSpringSource(wx, wy) {
+  const regW = REGION_CHUNKS * CHUNK_SZ;
+  const rx0 = Math.round(wx / regW), ry0 = Math.round(wy / regW);
+  for (let dry = -1; dry <= 1; dry++) {
+    for (let drx = -1; drx <= 1; drx++) {
+      const list = getWatershedsForRegion(rx0 + drx, ry0 + dry);
+      for (let wi = 0; wi < list.length; wi++) {
+        const ws = list[wi];
+        const d = Math.hypot(wx - ws.sx, wy - ws.sy);
+        if (d < ws.srcR - 2) return d;
+      }
+    }
+  }
+  return -1;
 }
 
 function bakeGroundChunk(cx, cy) {
@@ -3491,6 +3603,11 @@ function bakeGroundChunk(cx, cy) {
                 buf0[idx] = (lx === 0 && ly === 0 && lh > 0.93) ? WATER_U32.lotus : ((lx + ly < 0) ? WATER_U32.lilyHi : WATER_U32.lily);
               }
             }
+          }
+          // Sparkling concentric spring ripples at Mountain Spring Headwater sources (Исток!)
+          const sprD = isNearSpringSource(wx, wy);
+          if (sprD >= 0 && (sprD < 4.2 || Math.abs((sprD % 6.0) - 3.0) < 0.75)) {
+            buf0[idx] = sprD < 3.0 ? WATER_U32.springHi : WATER_U32.foam;
           }
         } else {
           // Natural mossy pebble / sandy riverbank & lakeshore rim (-5.5 < wd <= 0)
@@ -5135,41 +5252,67 @@ function getOrGenerateChunk(cx, cy) {
     return true;
   }
 
-  // Arched Wooden Bridges & Twin Bank Lanterns across Forest Rivers passing through this chunk!
-  const tryPlaceRiverBridge = (bx, by, rot) => {
-    if (overlapsMainCourtyard(bx, by, 76)) return false;
-    if (sampleForestWater(bx, by) < 8) return false;
-    // Bridge spans along local X (54px); verify both bank ends land on dry/shallow ground
-    const nx = Math.cos(rot), ny = Math.sin(rot);
-    if (sampleForestWater(bx + nx * 28, by + ny * 28) > 4 || sampleForestWater(bx - nx * 28, by - ny * 28) > 4) return false;
-    chunk.props.push({ x: bx, y: by, kind: 'bridge', rot, r: 0 });
-    const px = -ny, py = nx;
-    const l1x = bx + nx * 34 + px * 14, l1y = by + ny * 34 + py * 14;
-    const l2x = bx - nx * 34 - px * 14, l2y = by - ny * 34 - py * 14;
-    if (sampleForestWater(l1x, l1y) < -2) chunk.props.push({ x: l1x, y: l1y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
-    if (sampleForestWater(l2x, l2y) < -2) chunk.props.push({ x: l2x, y: l2y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
-    for (let s = 1; s <= 3; s++) {
-      const sx1 = bx + nx * (28 + s * 14), sy1 = by + ny * (28 + s * 14);
-      const sx2 = bx - nx * (28 + s * 14), sy2 = by - ny * (28 + s * 14);
-      if (sampleForestWater(sx1, sy1) < -2) chunk.stones.push({ x: sx1, y: sy1, w: 10, h: 8 });
-      if (sampleForestWater(sx2, sy2) < -2) chunk.stones.push({ x: sx2, y: sy2, w: 10, h: 8 });
-    }
-    return true;
-  };
-  if (((cx + cy) & 1) === 0) {
-    // Check River A crossing near chunk center X
-    const rAy = wy0 + _wrapDelta(getRiverAY(wx0) - wy0, RIVER_PERIOD);
-    if (Math.abs(rAy - wy0) < CHUNK_SZ * 0.42) {
-      const dy = getRiverAY(wx0 + 16) - getRiverAY(wx0 - 16);
-      const tang = Math.atan2(dy, 32);
-      tryPlaceRiverBridge(wx0, rAy, tang + Math.PI * 0.5);
-    }
-    // Check River B crossing near chunk center Y
-    const rBx = wx0 + _wrapDelta(getRiverBX(wy0) - wx0, RIVER_PERIOD);
-    if (Math.abs(rBx - wx0) < CHUNK_SZ * 0.42) {
-      const dx = getRiverBX(wy0 + 16) - getRiverBX(wy0 - 16);
-      const tang = Math.atan2(32, dx);
-      tryPlaceRiverBridge(rBx, wy0, tang + Math.PI * 0.5);
+  // Watershed Landmarks: Mountain Spring Boulders/Lantern (Исток), Midstream Wooden Bridge, & Lakeside Ferns (Устье)!
+  const inThisChunk = (x, y) => Math.abs(x - wx0) <= CHUNK_SZ * 0.5 && Math.abs(y - wy0) <= CHUNK_SZ * 0.5;
+  const regW = REGION_CHUNKS * CHUNK_SZ;
+  const wRx0 = Math.round(wx0 / regW), wRy0 = Math.round(wy0 / regW);
+  for (let dry = -1; dry <= 1; dry++) {
+    for (let drx = -1; drx <= 1; drx++) {
+      const wsList = getWatershedsForRegion(wRx0 + drx, wRy0 + dry);
+      for (let wi = 0; wi < wsList.length; wi++) {
+        const ws = wsList[wi];
+        // 1) Midstream Arched Wooden Bridge + Twin Bank Lanterns & Stepping Stones
+        if (inThisChunk(ws.bridge.x, ws.bridge.y)) {
+          const bx = ws.bridge.x, by = ws.bridge.y, rot = ws.bridge.rot;
+          chunk.props.push({ x: bx, y: by, kind: 'bridge', rot, r: 0 });
+          const nx = Math.cos(rot), ny = Math.sin(rot);
+          const px = -ny, py = nx;
+          const l1x = bx + nx * 32 + px * 14, l1y = by + ny * 32 + py * 14;
+          const l2x = bx - nx * 32 - px * 14, l2y = by - ny * 32 - py * 14;
+          if (sampleForestWater(l1x, l1y) < -1) chunk.props.push({ x: l1x, y: l1y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+          if (sampleForestWater(l2x, l2y) < -1) chunk.props.push({ x: l2x, y: l2y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+          for (let s = 1; s <= 3; s++) {
+            const sx1 = bx + nx * (26 + s * 14), sy1 = by + ny * (26 + s * 14);
+            const sx2 = bx - nx * (26 + s * 14), sy2 = by - ny * (26 + s * 14);
+            if (sampleForestWater(sx1, sy1) < -1) chunk.stones.push({ x: sx1, y: sy1, w: 10, h: 8 });
+            if (sampleForestWater(sx2, sy2) < -1) chunk.stones.push({ x: sx2, y: sy2, w: 10, h: 8 });
+          }
+        }
+        // 2) Mountain Spring Headwater (Исток): 3 mossy zen_rock boulders framing the upstream spring + sacred lantern + lush ferns!
+        if (inThisChunk(ws.sx, ws.sy)) {
+          const rockAngles = [ws.upAng - 0.85, ws.upAng, ws.upAng + 0.85];
+          for (let ri = 0; ri < rockAngles.length; ri++) {
+            const ra = rockAngles[ri];
+            const rDist = ws.srcR + 9 + (ri === 1 ? 2 : 0);
+            const rxp = ws.sx + Math.cos(ra) * rDist, ryp = ws.sy + Math.sin(ra) * rDist;
+            if (sampleForestWater(rxp, ryp) < 1) {
+              chunk.props.push({ x: rxp, y: ryp, kind: 'zen_rock', rot: ra + 1.2, r: PROP_META.zen_rock.r });
+            }
+          }
+          const lanA = ws.upAng + 1.65;
+          const lx = ws.sx + Math.cos(lanA) * (ws.srcR + 16), ly = ws.sy + Math.sin(lanA) * (ws.srcR + 16);
+          if (sampleForestWater(lx, ly) < -2) chunk.props.push({ x: lx, y: ly, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+          for (let fi = 0; fi < 10; fi++) {
+            const fa = (fi / 10) * Math.PI * 2;
+            const fx = ws.sx + Math.cos(fa) * (ws.srcR + 10 + rng() * 10);
+            const fy = ws.sy + Math.sin(fa) * (ws.srcR + 10 + rng() * 10);
+            tryAddGrass(chunk.grass, chunk.props, fx, fy, fi % 2 === 0 ? 'grass_fern' : 'grass_tall', rng() * 6.28, 12);
+          }
+        }
+        // 3) Forest Lake Delta Shore (Устье): lush ferns & tall reeds framing the serene lake!
+        if (inThisChunk(ws.lake.cx, ws.lake.cy)) {
+          const lk = ws.lake;
+          for (let fi = 0; fi < 14; fi++) {
+            const fa = (fi / 14) * Math.PI * 2 + rng() * 0.25;
+            const fx = lk.cx + Math.cos(fa) * (lk.radX + 10 + rng() * 14);
+            const fy = lk.cy + Math.sin(fa) * (lk.radY + 10 + rng() * 14);
+            tryAddGrass(chunk.grass, chunk.props, fx, fy, fi % 3 === 0 ? 'grass_flower' : (fi % 2 === 0 ? 'grass_fern' : 'grass_tall'), rng() * 6.28, 14);
+          }
+          const lka = Math.atan2(lk.cy - ws.ey, lk.cx - ws.ex) + 1.4;
+          const dlx = lk.cx + Math.cos(lka) * (lk.radX + 18), dly = lk.cy + Math.sin(lka) * (lk.radY + 18);
+          if (sampleForestWater(dlx, dly) < -3) chunk.props.push({ x: dlx, y: dly, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+        }
+      }
     }
   }
 
@@ -5507,7 +5650,7 @@ function normAngle(a) { return ((a + Math.PI * 3) % (Math.PI * 2)) - Math.PI; }
 
 function defaultPlayerStats() {
   return {
-    dmgMul: 1.0, atkSpdAdd: 0, extraProj: 0, projSpdAdd: 0, rangeMul: 1.0,
+    dmgMul: 1.0, shrineDmgMul: 1.0, atkSpdAdd: 0, extraProj: 0, projSpdAdd: 0, rangeMul: 1.0,
     critAdd: 0, critDmgAdd: 0, sizeMul: 1.0,
     xpMul: 1.0, luckAdd: 0, goldMul: 1.0,
     moveSpdAdd: 0, extraDashCharges: 0, armorAdd: 0, hpRegen: 0, magnetMul: 1.0, magnetAdd: 0,
@@ -5532,7 +5675,29 @@ function getMaxDashCharges() { return Math.min(6, 1 + (player.stats.extraDashCha
 
 function oniStackOf(id) { return player.onigiri[id] || 0; }
 function stackOf(id) { return player.items[id] || 0; }
-function getBaseDmg() { return (10 + (player.lvl - 1) * 1.1) * player.stats.dmgMul; }
+// True Megabonk 3-Bracket Multiplicative DPS Scaling:
+// Effective Base = WeaponMastery(lvl) * OnigiriDmgBracket * ShrineDmgBracket * RelicSynergyBracket
+function getWeaponBaseDmg() {
+  const n = Math.max(0, player.lvl - 1);
+  return 10 + n * 1.35 + Math.max(0, player.lvl - 8) * 0.55;
+}
+function getRelicDmgMul() {
+  let totalRelics = 0;
+  for (const k in player.items) totalRelics += player.items[k] || 0;
+  return 1.0 + totalRelics * 0.06;
+}
+function getBaseDmg() {
+  return getWeaponBaseDmg() * player.stats.dmgMul * (player.stats.shrineDmgMul || 1.0) * getRelicDmgMul();
+}
+function getEstimatedDps() {
+  const fireRate = (1000 / 398) * getAtkSpeedMul();
+  const projCount = 1 + getExtraProjectiles();
+  const bounceFactor = 1 + stackOf('ricochet') * 0.65 + stackOf('pierce') * 0.45;
+  const cChance = getCritChance();
+  const fl = Math.floor(cChance), rem = cChance - fl, cm = getCritMulti();
+  const critFactor = (1 - rem) * Math.pow(cm, fl) + rem * Math.pow(cm, fl + 1);
+  return Math.round(getBaseDmg() * fireRate * projCount * bounceFactor * critFactor);
+}
 function getCritChance() { return 0.05 + player.stats.critAdd + (player.chronoTimer > 0 ? 0.35 : 0); }
 function getCritMulti() { return 2.0 + player.stats.critDmgAdd; }
 function getAtkSpeedMul() { return (1.0 + player.stats.atkSpdAdd) * (player.chronoTimer > 0 ? 1.45 : 1.0); }
@@ -5574,27 +5739,27 @@ function calcXpNext(lvl) {
 }
 
 const ROMAN_STAGE = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-// Megabonk Multi-Vector Run Scaling: Stage Tier + Wave + Time + Global Difficulty + Outer-World Depth Threat!
+// Megabonk-Projected Multi-Vector Run Scaling:
+// Stage 1 (0:00-1:30): calm setup phase (fewer mobs, lower damage, crisp 2-shot kills) -> Stage 2/3+: steep 1.55x tier jumps & up to 600% Difficulty pressure!
 function getRunScaling() {
   const mins = runTime / 60;
-  const stageTier = 1 + Math.floor(mins / 1.25); // Escalates every 75s (I, II, III, IV...)
-  const stageJump = Math.pow(1.42, stageTier - 1);
+  const stageTier = 1 + Math.floor(mins / 1.5); // New Stage every 90s (Stage I, II, III, IV...)
+  const stageJump = Math.pow(1.55, stageTier - 1);
   const distFromOrigin = Math.hypot(player.x, player.y);
-  const distBonusPct = Math.min(85, Math.floor(Math.max(0, distFromOrigin - 380) / 22));
-  const effDiffPct = difficultyPct + distBonusPct;
+  const distBonusPct = Math.min(85, Math.floor(Math.max(0, distFromOrigin - 420) / 24));
+  const effDiffPct = Math.min(600, difficultyPct + distBonusPct); // Megabonk 600% pressure cap
   const diffMul = effDiffPct / 100;
-  const waveCurve = 1 + (waveNum - 1) * 0.14;
-  const timeCurve = (1 + mins * 0.62 + mins * mins * 0.28) * stageJump * (0.85 + 0.15 * waveCurve);
-  const hpScale = timeCurve * Math.pow(diffMul, 1.18);
-  const dmgScale = (1 + mins * 0.25 + (stageTier - 1) * 0.22 + (waveNum - 1) * 0.04) * Math.pow(diffMul, 0.58);
-  const speedAdd = Math.min(30, (stageTier - 1) * 4.5 + mins * 2.2 + (diffMul - 1) * 6.5);
-  const xpScale = (1 + mins * 0.28 + (stageTier - 1) * 0.22) * (1 + (diffMul - 1) * 0.90);
-  const goldScale = (1 + mins * 0.24 + (stageTier - 1) * 0.20) * (1 + (diffMul - 1) * 0.95);
+  const timeCurve = (1 + mins * 0.48 + mins * mins * 0.34) * stageJump;
+  const hpScale = timeCurve * Math.pow(diffMul, 1.22);
+  const dmgScale = (1 + mins * 0.30 + (stageTier - 1) * 0.32 + (waveNum - 1) * 0.04) * Math.pow(diffMul, 0.65);
+  const speedAdd = Math.min(30, (stageTier - 1) * 4.5 + mins * 2.0 + (diffMul - 1) * 6.5);
+  const xpScale = (1 + mins * 0.30 + (stageTier - 1) * 0.24) * (1 + (diffMul - 1) * 0.90);
+  const goldScale = (1 + mins * 0.24 + (stageTier - 1) * 0.22) * (1 + (diffMul - 1) * 0.95);
   const swarmBoost = swarmActiveTimer > 0 ? 1.85 : 1.0;
-  const maxEnemies = Math.min(84, Math.round((10 + waveNum * 4.5 + (stageTier - 1) * 7) * (0.75 + diffMul * 0.35) * (swarmActiveTimer > 0 ? 1.25 : 1.0)));
-  const spawnInterval = Math.max(0.20, (1.72 / (1 + mins * 0.44 + (stageTier - 1) * 0.28)) / (Math.pow(diffMul, 0.55) * swarmBoost));
-  const packSize = Math.min(4, 1 + Math.floor((diffMul - 1) * 1.4 + (stageTier - 1) * 0.55) + (swarmActiveTimer > 0 ? 1 : 0));
-  const eliteChance = Math.min(0.45, (waveNum >= 2 ? 0.09 + mins * 0.048 + (stageTier - 1) * 0.045 : 0) * Math.pow(diffMul, 0.45));
+  const maxEnemies = Math.min(84, Math.round((4.5 + (waveNum - 1) * 3.8 + (stageTier - 1) * 8) * Math.min(2.4, 0.72 + diffMul * 0.32) * (swarmActiveTimer > 0 ? 1.35 : 1.0)));
+  const spawnInterval = Math.max(0.20, (2.55 / (1 + mins * 0.52 + (stageTier - 1) * 0.36)) / (Math.pow(diffMul, 0.62) * swarmBoost));
+  const packSize = Math.min(4, 1 + Math.floor(Math.max(0, (diffMul - 1) * 1.35 + (stageTier - 1) * 0.65 + (waveNum >= 4 ? 0.45 : 0))) + (swarmActiveTimer > 0 ? 1 : 0));
+  const eliteChance = Math.min(0.45, (waveNum >= 3 ? 0.07 + mins * 0.045 + (stageTier - 1) * 0.045 : 0) * Math.pow(diffMul, 0.45));
   return { stageTier, diffMul, effDiffPct, distFromOrigin, hpScale, dmgScale, speedAdd, xpScale, goldScale, maxEnemies, spawnInterval, packSize, eliteChance };
 }
 
@@ -6180,8 +6345,8 @@ function spawnEnemy(kind = 'normal', forcedArchetype = null) {
       id: 'oni_golem', name: 'Храмовый О́ни-Голем', banner: 'ХРАМОВЫЙ О́НИ-ГОЛЕМ',
       spriteKey: 'boss', sw: 44, nS: 42, hpMul: 1, dmgMul: 1, speed: 38, r: 14, outCol: OUTLINE_BOSS, accent: '#ff5c6c',
     };
-    const bossHp = Math.round(350 * bd.hpMul * rs.hpScale * (1 + bossesKilled * 0.45));
-    const bossDmg = Math.round(18 * bd.dmgMul * rs.dmgScale);
+    const bossHp = Math.round(280 * bd.hpMul * rs.hpScale * (1 + bossesKilled * 0.48));
+    const bossDmg = Math.round(11.5 * bd.dmgMul * rs.dmgScale);
     const tierTag = ROMAN_STAGE[Math.min(10, rs.stageTier)] || String(rs.stageTier);
     enemies.push({
       id: nextEnemyId++, isBoss: true, bossKind: bd.id, bossName: bd.name, bossAccent: bd.accent,
@@ -6201,10 +6366,10 @@ function spawnEnemy(kind = 'normal', forcedArchetype = null) {
   const def = (em && em.ENEMY_DEFS[archId]) || {
     id: 'ashigaru', spriteKey: 'dummy', sw: 28, nS: 26, hpMul: 1, dmgMul: 1, speed: 38, r: 8, kbRes: 0, xpMul: 1, goldMul: 1, outCol: OUTLINE_DUMMY,
   };
-  const eliteHpMul = elite ? 3.4 : 1.0;
-  const eliteDmgMul = elite ? 1.55 : 1.0;
-  const hp = Math.round(26 * def.hpMul * eliteHpMul * rs.hpScale);
-  const dmg = Math.round(7.5 * def.dmgMul * eliteDmgMul * rs.dmgScale);
+  const eliteHpMul = elite ? 3.2 : 1.0;
+  const eliteDmgMul = elite ? 1.45 : 1.0;
+  const hp = Math.round(18 * def.hpMul * eliteHpMul * rs.hpScale);
+  const dmg = Math.round(4.2 * def.dmgMul * eliteDmgMul * rs.dmgScale);
   const spd = (def.speed * (elite ? 0.92 : 1.0)) + rs.speedAdd * (def.id === 'shinobi' ? 0.62 : 0.80);
   enemies.push({
     id: nextEnemyId++, isBoss: false, elite, fast: def.id === 'shinobi',
@@ -6226,8 +6391,8 @@ function spawnEnemy(kind = 'normal', forcedArchetype = null) {
 
 const SHRINE_BLESSINGS = [
   { id: 'sh_dmg', icon: 'oni_dmg', name: 'Благословение Урона',
-    baseVal: 10, fmt: v => `+${fmtStat(v)}% урона всех атак и скиллов.`,
-    apply: v => { player.stats.dmgMul += v / 100; } },
+    baseVal: 10, fmt: v => `+${fmtStat(v)}% к множителю урона святынь (перемножается с Онигири!).`,
+    apply: v => { player.stats.shrineDmgMul = (player.stats.shrineDmgMul || 1.0) + v / 100; } },
   { id: 'sh_cd', icon: 'oni_cd', name: 'Благословение Скорости',
     baseVal: 9, fmt: v => `+${fmtStat(v)}% скорость стрельбы и [[cd|КД]].`,
     apply: v => { player.stats.atkSpdAdd += v / 100; } },
@@ -6569,7 +6734,7 @@ document.addEventListener('mouseout', e => {
 
 function getOnigiriCurrentSummary(oni) {
   const st = player.stats;
-  if (oni.id === 'oni_dmg') return `Сейчас: урон ×${st.dmgMul.toFixed(2)} (${Math.round(getBaseDmg())}).`;
+  if (oni.id === 'oni_dmg') return `Сейчас: урон ${Math.round(getBaseDmg())} (Онигири ×${st.dmgMul.toFixed(2)} · Святыни ×${(st.shrineDmgMul || 1).toFixed(2)} · Реликвии ×${getRelicDmgMul().toFixed(2)}).`;
   if (oni.id === 'oni_cd') return `Сейчас: скорость ${Math.round(getAtkSpeedMul() * 100)}%, КД Ливня ${getRainCdMax().toFixed(1)}с.`;
   if (oni.id === 'oni_qty') return `Сейчас: ${1 + st.extraProj} в залпе, ${14 + st.extraProj * 2} в Ливне.`;
   if (oni.id === 'oni_crit') return `Сейчас: крит ${Math.round(getCritChance() * 100)}% (×${getCritMulti().toFixed(2)}).`;
@@ -6638,7 +6803,7 @@ function bindActiveSkillTooltips() {
 
 function updateModalInventoryDrawer() {
   $('buildStatsTxt').innerHTML =
-    `Урон: ${Math.round(getBaseDmg())} · Стрелы: ${1 + getExtraProjectiles()} · ` +
+    `DPS: ~${getEstimatedDps()} · Урон: ${Math.round(getBaseDmg())} · Стрелы: ${1 + getExtraProjectiles()} · ` +
     `<span class="kw" data-kw="crit">Крит</span>: ${Math.round(getCritChance() * 100)}% (×${getCritMulti().toFixed(1)}) · ` +
     `Скор.: ${Math.round(getAtkSpeedMul() * 100)}% · ` +
     `<span class="kw" data-kw="aoe">AoE</span>: ×${getSizeMul().toFixed(2)} · ` +
@@ -6916,9 +7081,9 @@ function resetRun() {
   muzzleFlashes = []; dashBursts = []; rainZones = []; stuckArrows = [];
   shrineToastTimer = 0; if ($('shrineToast')) $('shrineToast').className = '';
   paused = false; gameOver = false; inspectOnlyModal = false; pendingOffers = [];
-  runTime = 0; waveNum = 1; kills = 0; gold = 15; difficultyPct = 100; spawnTimer = 0; bossTimer = 46; hitStopTimer = 0; hitStopCd = 0;
+  runTime = 0; waveNum = 1; kills = 0; gold = 15; difficultyPct = 100; spawnTimer = 0; bossTimer = 65; hitStopTimer = 0; hitStopCd = 0;
   elitePity = 0; volleyCount = 0; iaidoTimer = 0; meteorTimer = 0;
-  bossesKilled = 0; bossSpawnCount = 0; lastStageTier = 1; nextSwarmAt = 48; swarmActiveTimer = 0;
+  bossesKilled = 0; bossSpawnCount = 0; lastStageTier = 1; nextSwarmAt = 60; swarmActiveTimer = 0;
   Object.assign(player, {
     x: 0, y: 18, vx: 0, vy: 0, hp: 100, maxHp: 100, hurtCd: 0, kevinCd: 0, squash: 0,
     lvl: 1, xp: 0, xpNext: calcXpNext(1), onigiri: {}, items: {}, stats: defaultPlayerStats(), shooting: false,
@@ -6949,7 +7114,7 @@ function resetRun() {
     spawnEnemy('boss');
     for (let i = 0; i < 55; i++) spawnEnemy(i % 6 === 0 ? 'elite' : (i % 3 === 0 ? 'fast' : 'normal'));
   } else {
-    for (let i = 0; i < 6; i++) spawnEnemy('normal');
+    for (let i = 0; i < 3; i++) spawnEnemy('normal', 'ashigaru');
   }
 }
 
