@@ -208,11 +208,12 @@
     border-radius: 1px; overflow: hidden; position: relative;
     border: 1px solid #050608; cursor: pointer;
   }
+  #dashPill { width: 130px; }
   .skill-fill { height: 100%; width: 100%; background: linear-gradient(180deg, #e8be58 0%, #be9432 100%); }
   .skill-pill.rain .skill-fill { background: linear-gradient(180deg, #e8844c 0%, #bf5b28 100%); }
   .skill-pill.chrono .skill-fill { background: linear-gradient(180deg, #52d1e8 0%, #2a97b0 100%); }
   .skill-txt {
-    position: absolute; inset: 0; font-size: 13px;
+    position: absolute; inset: 0; font-size: 13px; white-space: nowrap;
     line-height: 22px; text-align: center; letter-spacing: 0.02em;
     color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 1px 0 #000;
   }
@@ -313,7 +314,7 @@
   .drawer-top { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--eui-muted); margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
   .drawer-sub { text-align: left; font: 400 13px var(--eui-font); color: #dce3ef; margin: 6px 0 5px; letter-spacing: .04em; }
   .drawer-sub.rel { color: var(--eui-gold); margin-top: 8px; }
-  #modalOnigiriGrid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; }
+  #modalOnigiriGrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
   #modalRelicGrid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
   .m-slot {
     height: 46px; background: #151922; border: 1px solid var(--eui-border);
@@ -475,6 +476,7 @@
 <script src="./modules/ruin-sprites.js"></script>
 <script src="./modules/courtyard-floor.js"></script>
 <script src="./modules/combat-vfx.js"></script>
+<script src="./modules/enemies.js"></script>
 <script>
 const IMAGES_SRC = {
   sakura: 'data:image/png;base64,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',
@@ -641,9 +643,11 @@ const ONIGIRI_POOL = [
   { id: 'oni_luck', name: 'Онигири Удачи',
     baseVal: 7, fmt: v => `+${fmtStat(v)}% [[luck|Удаче]] и +${fmtStat(v * (12 / 7))}% золота.` },
   { id: 'oni_vit', name: 'Онигири Живучести',
-    baseVal: 25, fmt: v => `+${Math.round(v)} Max HP, +${Math.round(v * 0.48)}% [[armor|Броня]], +${(v * 0.024).toFixed(1)}/с [[regen|Реген]] и +${fmtStat(v * 0.32)}% бег.` },
+    baseVal: 25, fmt: v => `+${Math.round(v)} Max HP, +${Math.round(v * 0.48)}% [[armor|Броня]] и +${(v * 0.024).toFixed(1)}/с [[regen|Реген]].` },
   { id: 'oni_range', name: 'Онигири Дальности',
     baseVal: 12, fmt: v => `+${fmtStat(v)}% [[range|Дальность]] атаки и +${fmtStat(v * 0.85)}% скорость стрел.` },
+  { id: 'oni_move', name: 'Онигири Ветра',
+    baseVal: 10, fmt: v => `+${fmtStat(v)}% скорость передвижения и ускорение перезарядки Рывка.` },
 ];
 const ONIGIRI_BY_ID = Object.fromEntries(ONIGIRI_POOL.map(o => [o.id, o]));
 
@@ -1070,7 +1074,7 @@ const enemyCache = new Map();
 const lastStackByKey = new Map();
 const lastEnemyByKey = new Map();
 const STACK_CACHE_MAX = 6400;
-const ENEMY_CACHE_MAX = 1200;
+const ENEMY_CACHE_MAX = 2400;
 let frameCacheBuilds = 0;
 let totalRenderFrames = 0;
 let isCamRotatingFast = false;
@@ -1276,10 +1280,11 @@ function getCachedStack(kind, worldRot, camAngle, tilt, wFrame = null, grassLean
   return c;
 }
 
-function getCachedEnemyStack(isBoss, frame, rotRad, tilt, outCol) {
+function getCachedEnemyStack(spriteKey, sw, nS, frame, rotRad, tilt, outCol) {
   const angStep = 10;
   const qAng = ((Math.round((rotRad * 180 / Math.PI) / angStep) * angStep) % 360 + 360) % 360;
-  const baseKey = `${isBoss ? 'B' : 'D'}_${Math.round(tilt * 100)}_${outCol}_${normalMapView ? 1 : 0}`;
+  const sKey = spriteKey || 'dummy';
+  const baseKey = `${sKey}_${Math.round(tilt * 100)}_${outCol}_${normalMapView ? 1 : 0}`;
   const keyPrefix = `${baseKey}_${frame}_`;
   const key = keyPrefix + qAng;
   const hit = lruGet(enemyCache, key);
@@ -1304,10 +1309,10 @@ function getCachedEnemyStack(isBoss, frame, rotRad, tilt, outCol) {
     }
   }
   frameCacheBuilds++;
-  const sw = isBoss ? 44 : 28, nS = isBoss ? 42 : 26;
-  const halfW = Math.ceil(sw * 0.72) + 8;
-  const topH = nS + Math.ceil(sw * 0.52) + 3;
-  const botH = Math.ceil(sw * 0.52) + 4;
+  const effSw = sw || 28, effNS = nS || 26;
+  const halfW = Math.ceil(effSw * 0.72) + 8;
+  const topH = effNS + Math.ceil(effSw * 0.52) + 3;
+  const botH = Math.ceil(effSw * 0.52) + 4;
   const x0 = (SCR_W >> 1) - halfW, y0 = SCR_BASE - topH;
   const c = document.createElement('canvas');
   c.width = halfW * 2; c.height = topH + botH;
@@ -1315,7 +1320,8 @@ function getCachedEnemyStack(isBoss, frame, rotRad, tilt, outCol) {
   c._qAng = qAng;
   const cctx = c.getContext('2d');
   cctx.translate(-x0, -y0);
-  renderSingleStack(cctx, isBoss ? IMGS.boss : IMGS.dummy, sw, nS, frame, qAng * Math.PI / 180, tilt, outCol, SCR_W / 2, SCR_BASE, null, null, 0, 0, 0, 0, FIXED_PROP_SUN, false, 0, !normalMapView);
+  const srcImg = IMGS[sKey] || IMGS.dummy;
+  renderSingleStack(cctx, srcImg, effSw, effNS, frame, qAng * Math.PI / 180, tilt, outCol, SCR_W / 2, SCR_BASE, null, null, 0, 0, 0, 0, FIXED_PROP_SUN, false, 0, !normalMapView);
   lruSet(enemyCache, key, c, ENEMY_CACHE_MAX);
   return c;
 }
@@ -1533,6 +1539,8 @@ function buildProceduralVoxelStrips() {
   IMGS.altar_succ     = makeGorintoAltarStrip();
   // Modular 3D Voxel Ruin Strips (ruin_rubble, fallen_lantern, ruin_wall_stub, broken_torii, ruin_foundation, broken_pillar)
   if (window.SakuraRuinSprites) window.SakuraRuinSprites.buildAll(IMGS);
+  // Modular 3D Voxel Enemy Archetypes & Bosses (shinobi, yumi, kitsunebi, samurai, shogun, kitsune_boss)
+  if (window.SakuraEnemies) window.SakuraEnemies.buildAll(IMGS);
 
   // 3) Biome-Matched Interactive Tall Grass & Tuft Strips (Sakura spring, Autumn amber-olive, Pine dark spruce!)
   function makeTallGrassStrip(root0, root1, c0, c1, c2, c3) {
@@ -2541,6 +2549,36 @@ function buildPixelArtItemIcons() {
         '........................',
       ]
     },
+    oni_move: {
+      // Gale-Step Wind Onigiri (mint-emerald breeze rice + swirling cyan/white wind gust crest + deep teal nori!)
+      pal: { B: '#131223', W: '#e9fff8', C: '#c4f2e6', S: '#90d8c8', D: '#5db0a0', N: '#122b2e', M: '#1c4447', E: '#2c686b', A: '#35d4b2', L: '#8affdf', H: '#ffffff', K: '#18806d' },
+      rows: [
+        '........................',
+        '.........BBBBBB.........',
+        '.......BBWWWWWWBB.......',
+        '......BWWWCWWWCWWB......',
+        '.....BWWWBBBBBBWWWB.....',
+        '....BWWWBKLLLLKBWWWB....',
+        '....BWWBKLHHHLLKBWWB....',
+        '...BWWWBKLLBBLLKBWWWB...',
+        '...BWWWBKAAWWBKKBWWWB...',
+        '..BWWWWBKKAAAAKKBWWWWB..',
+        '..BWWCWWBKKLLLLKBWCWWB..',
+        '..BWWWWWWBBBBBBBWWWWWB..',
+        '.BWWWWWWCWWWWWWCWWWWWWB.',
+        '.BWWWCWWWWWWWWWWWWCWWWB.',
+        '.BWWWSBBNNNNNNNNBBWWWSB.',
+        'BWWWSBNMNNNNNNNNMNBSWWWB',
+        'BWWSSBNEMNNNNNNMENBSSWWB',
+        'BWWSSBNMNLLLLLLNMNBSSWWB',
+        'BWSSSBNMNAAAAAANMNBSSSWB',
+        'BSSSSBNMMNNNNNNMMNBSSSSB',
+        'BDDDDDBNNNNNNNNNNBDDDDDB',
+        '.BBBBBBBBBBBBBBBBBBBBBB.',
+        '........................',
+        '........................',
+      ]
+    },
     // ---- NEW MEGABONK CHEST RELIC ICONS ----
     over_lamp: {
       // Spirit Lamp (Megabonk Overpowered Lamp parallel!)
@@ -3158,6 +3196,152 @@ function fillRectU32(buf, x0, y0, w, h, col) {
   }
 }
 
+// ====================================================== 1b) INFINITE FOREST RIVERS & LAKES (ZERO-FPS-COST 5-LAYER WATER!)
+const _packWaterU32 = (r, g, b, a = 255) => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
+const WATER_U32 = {
+  foam:     _packWaterU32(218, 244, 252),
+  foamRim:  _packWaterU32(154, 214, 232),
+  shallow:  _packWaterU32(98,  186, 212),
+  shalHi:   _packWaterU32(148, 222, 238),
+  mid:      _packWaterU32(71,  152, 199),
+  midHi:    _packWaterU32(106, 182, 224),
+  deep:     _packWaterU32(46,  106, 148),
+  deepHi:   _packWaterU32(62,  132, 178),
+  bankDark: _packWaterU32(96,  104, 98),
+  bankMid:  _packWaterU32(126, 134, 124),
+  bankSand: _packWaterU32(162, 152, 124),
+  bankMoss: _packWaterU32(84,  118, 52),
+  lily:     _packWaterU32(72,  138, 56),
+  lilyHi:   _packWaterU32(106, 174, 78),
+  lotus:    _packWaterU32(252, 168, 196),
+};
+const RIVER_PERIOD = 1950;
+const LAKE_CELL = 480;
+const forestWaterCfg = {
+  offY: 590, phA1: 0.4, phA2: 1.9, phAW: 0.7,
+  offX: -620, phB1: 1.2, phB2: 3.1, phBW: 2.1,
+  seed: 1,
+};
+const _forestLakeCache = new Map();
+
+function initForestWater(seed) {
+  const rng = makeRng((seed * 2654435761 + 918273) >>> 0);
+  forestWaterCfg.seed = seed;
+  forestWaterCfg.offY = (rng() < 0.5 ? 1 : -1) * (540 + Math.round(rng() * 140));
+  forestWaterCfg.offX = (rng() < 0.5 ? 1 : -1) * (560 + Math.round(rng() * 150));
+  forestWaterCfg.phA1 = rng() * Math.PI * 2;
+  forestWaterCfg.phA2 = rng() * Math.PI * 2;
+  forestWaterCfg.phAW = rng() * Math.PI * 2;
+  forestWaterCfg.phB1 = rng() * Math.PI * 2;
+  forestWaterCfg.phB2 = rng() * Math.PI * 2;
+  forestWaterCfg.phBW = rng() * Math.PI * 2;
+  _forestLakeCache.clear();
+}
+
+function getRiverAY(wx) {
+  return forestWaterCfg.offY
+    + Math.sin(wx * 0.0023 + forestWaterCfg.phA1) * 125
+    + Math.sin(wx * 0.0057 + forestWaterCfg.phA2) * 44;
+}
+function getRiverAHalfW(wx) {
+  return 18.5 + Math.sin(wx * 0.0075 + forestWaterCfg.phAW) * 4.5;
+}
+function getRiverBX(wy) {
+  return forestWaterCfg.offX
+    + Math.sin(wy * 0.0021 + forestWaterCfg.phB1) * 135
+    + Math.sin(wy * 0.0053 + forestWaterCfg.phB2) * 46;
+}
+function getRiverBHalfW(wy) {
+  return 17.5 + Math.sin(wy * 0.0071 + forestWaterCfg.phBW) * 4.2;
+}
+function _wrapDelta(d, period) {
+  let r = ((d + period * 0.5) % period + period) % period - period * 0.5;
+  return r;
+}
+function getForestLakeSpec(lcx, lcy) {
+  const k = ((lcx + 16384) << 15) ^ (lcy + 16384);
+  if (_forestLakeCache.has(k)) return _forestLakeCache.get(k);
+  if (Math.abs(lcx) <= 1 && Math.abs(lcy) <= 1) { _forestLakeCache.set(k, null); return null; }
+  const h = h2Wang(lcx, lcy, 743 + (forestWaterCfg.seed & 1023));
+  if (h > 0.42) { _forestLakeCache.set(k, null); return null; }
+  const h2 = h2Wang(lcx, lcy, 787);
+  const h3 = h2Wang(lcx, lcy, 821);
+  const h4 = h2Wang(lcx, lcy, 859);
+  const cx = lcx * LAKE_CELL + (h2 - 0.5) * 190;
+  const cy = lcy * LAKE_CELL + (h3 - 0.5) * 190;
+  // Never place a lake inside central sanctuary or an outer courtyard feature chunk
+  if (Math.max(Math.abs(cx), Math.abs(cy)) < 470) { _forestLakeCache.set(k, null); return null; }
+  const cCx = Math.round(cx / CHUNK_SZ), cCy = Math.round(cy / CHUNK_SZ);
+  const rx = Math.round(cCx / REGION_CHUNKS), ry = Math.round(cCy / REGION_CHUNKS);
+  const reg = getRegionSpec(rx, ry);
+  if (reg && reg.feature && reg.feature.startsWith('courtyard_')) {
+    const tWx = reg.targetCx * CHUNK_SZ, tWy = reg.targetCy * CHUNK_SZ;
+    if (Math.max(Math.abs(cx - tWx), Math.abs(cy - tWy)) < 290) { _forestLakeCache.set(k, null); return null; }
+  }
+  const radX = 48 + h4 * 26;
+  const radY = 38 + h2Wang(lcx, lcy, 907) * 22;
+  const spec = {
+    cx, cy, radX, radY,
+    l2x: (h2 - 0.5) * radX * 0.72,
+    l2y: (h3 - 0.5) * radY * 0.68,
+    rad2X: radX * 0.74,
+    rad2Y: radY * 0.72,
+    wobF: 3 + (Math.floor(h4 * 3)),
+    wobP: h2 * 6.283,
+  };
+  _forestLakeCache.set(k, spec);
+  return spec;
+}
+
+// Fast zero-allocation signed water depth (>0 inside water, <=0 on dry land)
+function sampleForestWater(wx, wy) {
+  // Smoothly suppress all outer forest water around central sanctuary (435px) & central outer wheat fields!
+  const centralBox = Math.max(Math.abs(wx), Math.abs(wy));
+  if (centralBox < 445) return -40;
+  // Suppress around any outer procedural courtyard in this macro-region
+  const cCx = Math.round(wx / CHUNK_SZ), cCy = Math.round(wy / CHUNK_SZ);
+  const rx = Math.round(cCx / REGION_CHUNKS), ry = Math.round(cCy / REGION_CHUNKS);
+  const reg = getRegionSpec(rx, ry);
+  let cyMargin = 999;
+  if (reg && reg.feature && reg.feature.startsWith('courtyard_')) {
+    const tWx = reg.targetCx * CHUNK_SZ, tWy = reg.targetCy * CHUNK_SZ;
+    cyMargin = Math.max(Math.abs(wx - tWx), Math.abs(wy - tWy)) - 245;
+    if (cyMargin < 0) return -40;
+  }
+
+  // 1) Winding East-West Forest River A (repeating every RIVER_PERIOD)
+  const dA = Math.abs(_wrapDelta(wy - getRiverAY(wx), RIVER_PERIOD));
+  let best = getRiverAHalfW(wx) - dA;
+
+  // 2) Winding North-South Forest River B (repeating every RIVER_PERIOD)
+  const dB = Math.abs(_wrapDelta(wx - getRiverBX(wy), RIVER_PERIOD));
+  const wdB = getRiverBHalfW(wy) - dB;
+  if (wdB > best) best = wdB;
+
+  // 3) Procedural Organic Forest Lakes in nearby LAKE_CELLs
+  const lcx = Math.round(wx / LAKE_CELL), lcy = Math.round(wy / LAKE_CELL);
+  for (let oy = -1; oy <= 1; oy++) {
+    for (let ox = -1; ox <= 1; ox++) {
+      const lk = getForestLakeSpec(lcx + ox, lcy + oy);
+      if (!lk) continue;
+      const dx = wx - lk.cx, dy = wy - lk.cy;
+      if (Math.abs(dx) > lk.radX * 1.65 || Math.abs(dy) > lk.radY * 1.65) continue;
+      const q1 = (dx * dx) / (lk.radX * lk.radX) + (dy * dy) / (lk.radY * lk.radY);
+      const dx2 = dx - lk.l2x, dy2 = dy - lk.l2y;
+      const q2 = (dx2 * dx2) / (lk.rad2X * lk.rad2X) + (dy2 * dy2) / (lk.rad2Y * lk.rad2Y);
+      const wob = Math.sin(Math.atan2(dy, dx) * lk.wobF + lk.wobP) * 0.11;
+      const norm = Math.sqrt(Math.min(q1, q2)) + wob;
+      const lakeD = (1.0 - norm) * Math.min(lk.radX, lk.radY);
+      if (lakeD > best) best = lakeD;
+    }
+  }
+
+  // Taper smoothly near sanctuary / outer courtyard boundaries so rivers don't slice abruptly
+  const edgeFade = Math.min(centralBox - 445, cyMargin);
+  if (edgeFade < 36) best -= (36 - edgeFade) * 0.9;
+  return best;
+}
+
 function bakeGroundChunk(cx, cy) {
   let chunk = groundChunkPool.pop();
   if (!chunk) {
@@ -3262,6 +3446,65 @@ function bakeGroundChunk(cx, cy) {
         fillRectU32(buf2, px, py, 3, 1, u.skirtEdge);
         buf3[(py << 8) + px] = u.bladeHi;
         buf3[((py - 1) << 8) + px + 2] = u.bladeHi;
+      }
+    }
+  }
+
+  // Zero-FPS-cost 5-layer Forest River & Lake basin carving directly in RAM Uint32Array!
+  const chunkWx = chunk.wx, chunkWy = chunk.wy;
+  let hasNearWater = false;
+  waterProbe:
+  for (let sy = 0; sy <= GROUND_CHUNK_PX; sy += 32) {
+    for (let sx = 0; sx <= GROUND_CHUNK_PX; sx += 32) {
+      if (sampleForestWater(chunkWx + sx, chunkWy + sy) > -34) { hasNearWater = true; break waterProbe; }
+    }
+  }
+  if (hasNearWater) {
+    for (let py = 0; py < GROUND_CHUNK_PX; py++) {
+      const wy = chunkWy + py;
+      const rowOff = py << 8;
+      for (let px = 0; px < GROUND_CHUNK_PX; px++) {
+        const wx = chunkWx + px;
+        const wd = sampleForestWater(wx, wy);
+        if (wd <= -5.5) continue;
+        const idx = rowOff + px;
+        if (wd > 0) {
+          // Carve sunken 3D water basin cleanly out of moss/leaf/grass layers z=2..4
+          buf2[idx] = 0; buf3[idx] = 0; buf4[idx] = 0;
+          const wave = Math.sin(wd * 0.65 + Math.sin(wx * 0.09 + wy * 0.08) * 1.1);
+          buf1[idx] = wd <= 2.3 ? (((wx + wy) & 1) ? WATER_U32.foam : WATER_U32.foamRim) : 0;
+          if (wd < 2.2 + wave * 0.35) {
+            buf0[idx] = WATER_U32.foam;
+          } else if (wd < 6.4) {
+            buf0[idx] = (wave > 0.70) ? WATER_U32.shalHi : WATER_U32.shallow;
+          } else if (wd < 13.5) {
+            buf0[idx] = (wave > 0.84 && ((wx + wy) & 1) === 0) ? WATER_U32.midHi : WATER_U32.mid;
+          } else {
+            buf0[idx] = (wave > 0.90) ? WATER_U32.deepHi : WATER_U32.deep;
+          }
+          // Occasional pixel lily pad + pink lotus dot on calm wider lake water (wd > 9)
+          if (wd > 9.5 && ((wx & 15) >= 5 && (wx & 15) <= 9) && ((wy & 15) >= 5 && (wy & 15) <= 9)) {
+            const lh = h2Wang(wx >> 4, wy >> 4, 971);
+            if (lh > 0.86) {
+              const lx = (wx & 15) - 7, ly = (wy & 15) - 7;
+              if (lx * lx + ly * ly <= 5 && !(lx === 2 && ly === 0)) {
+                buf0[idx] = (lx === 0 && ly === 0 && lh > 0.93) ? WATER_U32.lotus : ((lx + ly < 0) ? WATER_U32.lilyHi : WATER_U32.lily);
+              }
+            }
+          }
+        } else {
+          // Natural mossy pebble / sandy riverbank & lakeshore rim (-5.5 < wd <= 0)
+          buf4[idx] = 0;
+          const bHash = ((wx * 73 + wy * 151) & 15);
+          if (wd > -2.4) {
+            buf1[idx] = WATER_U32.bankDark;
+            buf2[idx] = bHash < 5 ? WATER_U32.bankDark : (bHash < 11 ? WATER_U32.bankMid : WATER_U32.bankSand);
+            buf3[idx] = bHash === 2 ? WATER_U32.bankSand : (bHash === 9 ? WATER_U32.bankMoss : 0);
+          } else if (bHash < 6) {
+            buf2[idx] = bHash < 3 ? WATER_U32.bankMoss : WATER_U32.bankSand;
+            if (bHash === 1) buf3[idx] = WATER_U32.bankMid;
+          }
+        }
       }
     }
   }
@@ -3680,6 +3923,60 @@ function addCyProp(x, y, kind, rot = 0) {
   }
 }
 
+// Strict post-placement clearance validator for central & procedural courtyards:
+// Prevents enlarged trees (1.14x..1.62x) from EVER overlapping chozuya/pavilions/buildings/walls on ANY seed or shape!
+function sanitizeCourtyardProps(propsArr, rects, walls, pondTest = null) {
+  const isClear = (candX, candY, self, treeFoot) => {
+    if (rects && rects.length && pointInRects(self.x, self.y, rects, 0) && !pointInRects(candX, candY, rects, -26)) {
+      return false;
+    }
+    if (pondTest && pondTest(candX, candY)) return false;
+    // Keep trees clear of courtyard wall segments
+    for (let wi = 0; wi < walls.length; wi++) {
+      const w = walls[wi];
+      const cx = Math.max(w.x0, Math.min(w.x1, candX));
+      const cy = Math.max(w.y0, Math.min(w.y1, candY));
+      if (Math.hypot(candX - cx, candY - cy) < 28) return false;
+    }
+    for (let oi = 0; oi < propsArr.length; oi++) {
+      const o = propsArr[oi];
+      if (o === self || o._drop || o.kind === 'wall_bay' || o.kind === 'pillar') continue;
+      const oFoot = getVisualFootprint(o.kind);
+      const isTiny = o.kind === 'lantern' || o.kind === 'fallen_lantern' || o.kind === 'ruin_rubble' || o.kind === 'broken_pillar';
+      const minD = treeFoot + oFoot + (isTiny ? 2 : 10);
+      if (Math.hypot(candX - o.x, candY - o.y) < minD) return false;
+    }
+    return true;
+  };
+  for (let i = 0; i < propsArr.length; i++) {
+    const p = propsArr[i];
+    const pm = PROP_META[p.kind];
+    if (!pm || !pm.isTree) continue;
+    const sc = p.scale || 1.28;
+    const treeFoot = Math.round(24 * (0.72 + 0.28 * sc));
+    if (isClear(p.x, p.y, p, treeFoot)) continue;
+    let relocated = false;
+    const radii = [36, 54, 74, 96];
+    for (let ri = 0; ri < radii.length && !relocated; ri++) {
+      const rad = radii[ri];
+      for (let ai = 0; ai < 12; ai++) {
+        const a = (ai / 12) * Math.PI * 2;
+        const nx = Math.round(p.x + Math.cos(a) * rad);
+        const ny = Math.round(p.y + Math.sin(a) * rad);
+        if (isClear(nx, ny, p, treeFoot)) {
+          p.x = nx; p.y = ny;
+          relocated = true;
+          break;
+        }
+      }
+    }
+    if (!relocated) p._drop = true;
+  }
+  for (let i = propsArr.length - 1; i >= 0; i--) {
+    if (propsArr[i]._drop) propsArr.splice(i, 1);
+  }
+}
+
 function addCyWallBay(x, y, rot, bayLen, isVert) {
   const lenHalf = bayLen * 0.5;
   courtyardProps.push({ x, y, kind: 'wall_bay', rot, bayLen, r: 0 });
@@ -3732,7 +4029,7 @@ function mergeCollinearWalls(walls) {
 // Poisson-spaced 3D Grass placement: guarantees at least 19px between any two grass tufts
 // and keeps grass clear of buildings, tree trunks, decor, and pond water!
 function tryAddGrass(targetGrassArr, propsArr, gx, gy, kind, rot, minSpace = 19) {
-  if (isInPond(gx, gy)) return false;
+  if (isInPond(gx, gy) || sampleForestWater(gx, gy) > -3.5) return false;
   const sp2 = minSpace * minSpace;
   for (let i = 0; i < targetGrassArr.length; i++) {
     const g = targetGrassArr[i];
@@ -3977,6 +4274,7 @@ function generateRandomLevel(seed) {
   lastPondTexT = -99;
 
   wangSeedOff = seed * 31;
+  initForestWater(seed);
   buildWangPaletteTiles();
 
   // Pick one of 4 Distinct Ancient Japan Starting World Archetypes (Courtyard is NOT always present!):
@@ -4238,8 +4536,8 @@ function generateRandomLevel(seed) {
       // West-South Wing: Chozuya Ablution Pavilion (or collapsed roofless Ruin Foundation in ruins!) + Sakura Trees!
       addCyProp(-198, 136, centralCyRuined ? 'ruin_foundation' : 'chozuya', centralCyRuined ? 1.57 : 0);
       addCyProp(-235, -58, 'sakura', rng() * 6.28);
-      addCyProp(-248, 166, 'sakura', rng() * 6.28);
-      addCyProp(255,  156, 'sakura', rng() * 6.28);
+      addCyProp(-242, 18,  'sakura', rng() * 6.28);
+      addCyProp(248,  156, 'sakura', rng() * 6.28);
       addCyProp(92,   -72, 'lantern', 0);
       addCyProp(-52,   96, 'lantern', 0);
       addCyProp(52,    96, 'lantern', 0);
@@ -4346,6 +4644,9 @@ function generateRandomLevel(seed) {
         if (rng() < 0.26) steppingStones.splice(i, 1);
       }
     }
+
+    // Sanitize courtyard trees so enlarged trees NEVER overlap chozuya/buildings/walls!
+    sanitizeCourtyardProps(courtyardProps, centralCyRects, courtyardWalls, (x, y) => hasCentralPond && Math.hypot(x - POND_CX, y - POND_CY) < 62);
 
     // Rounded 3D Moss & Grass Islands under EVERY Courtyard Sakura/Autumn tree + walkway-safe garden moss islands!
     const cyBounds = { x0: CY_X0, y0: CY_Y0, x1: CY_X1, y1: CY_Y1 };
@@ -4730,6 +5031,9 @@ function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
     }
   }
 
+  // Sanitize procedural courtyard trees against chozuya/buildings/walls before baking moss islands!
+  sanitizeCourtyardProps(chunk.props, rects, chunk.walls, null);
+
   // Rounded moss islands under procedural courtyard trees + walkway-safe garden moss islands
   const pBounds = { x0, y0, x1, y1 };
   const inPTerrace = (x, y, pad = 12) => cyData.terraces.some(t => x >= t.x0 - pad && x <= t.x1 + pad && y >= t.y0 - pad && y <= t.y1 + pad);
@@ -4822,12 +5126,51 @@ function getOrGenerateChunk(cx, cy) {
     const myFoot = kind === 'pine' ? 24 : getVisualFootprint(kind);
     if (overlapsMainCourtyard(x, y, myFoot + 36)) return false;
     if (overlapsChunkWheat(x, y, myFoot + 10)) return false;
+    if (sampleForestWater(x, y) > -(myFoot * 0.55 + 8)) return false;
     for (const p of chunk.props) {
       const otherFoot = (kind === 'pine' && p.kind === 'pine') ? 24 : getVisualFootprint(p.kind);
       const minGap = (kind === 'pine' && p.kind === 'pine') ? Math.min(customPad, 10) : customPad;
       if (Math.hypot(x - p.x, y - p.y) < myFoot + otherFoot + minGap) return false;
     }
     return true;
+  }
+
+  // Arched Wooden Bridges & Twin Bank Lanterns across Forest Rivers passing through this chunk!
+  const tryPlaceRiverBridge = (bx, by, rot) => {
+    if (overlapsMainCourtyard(bx, by, 76)) return false;
+    if (sampleForestWater(bx, by) < 8) return false;
+    // Bridge spans along local X (54px); verify both bank ends land on dry/shallow ground
+    const nx = Math.cos(rot), ny = Math.sin(rot);
+    if (sampleForestWater(bx + nx * 28, by + ny * 28) > 4 || sampleForestWater(bx - nx * 28, by - ny * 28) > 4) return false;
+    chunk.props.push({ x: bx, y: by, kind: 'bridge', rot, r: 0 });
+    const px = -ny, py = nx;
+    const l1x = bx + nx * 34 + px * 14, l1y = by + ny * 34 + py * 14;
+    const l2x = bx - nx * 34 - px * 14, l2y = by - ny * 34 - py * 14;
+    if (sampleForestWater(l1x, l1y) < -2) chunk.props.push({ x: l1x, y: l1y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+    if (sampleForestWater(l2x, l2y) < -2) chunk.props.push({ x: l2x, y: l2y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+    for (let s = 1; s <= 3; s++) {
+      const sx1 = bx + nx * (28 + s * 14), sy1 = by + ny * (28 + s * 14);
+      const sx2 = bx - nx * (28 + s * 14), sy2 = by - ny * (28 + s * 14);
+      if (sampleForestWater(sx1, sy1) < -2) chunk.stones.push({ x: sx1, y: sy1, w: 10, h: 8 });
+      if (sampleForestWater(sx2, sy2) < -2) chunk.stones.push({ x: sx2, y: sy2, w: 10, h: 8 });
+    }
+    return true;
+  };
+  if (((cx + cy) & 1) === 0) {
+    // Check River A crossing near chunk center X
+    const rAy = wy0 + _wrapDelta(getRiverAY(wx0) - wy0, RIVER_PERIOD);
+    if (Math.abs(rAy - wy0) < CHUNK_SZ * 0.42) {
+      const dy = getRiverAY(wx0 + 16) - getRiverAY(wx0 - 16);
+      const tang = Math.atan2(dy, 32);
+      tryPlaceRiverBridge(wx0, rAy, tang + Math.PI * 0.5);
+    }
+    // Check River B crossing near chunk center Y
+    const rBx = wx0 + _wrapDelta(getRiverBX(wy0) - wx0, RIVER_PERIOD);
+    if (Math.abs(rBx - wx0) < CHUNK_SZ * 0.42) {
+      const dx = getRiverBX(wy0 + 16) - getRiverBX(wy0 - 16);
+      const tang = Math.atan2(32, dx);
+      tryPlaceRiverBridge(rBx, wy0, tang + Math.PI * 0.5);
+    }
   }
 
   // Ecological Wheat Field placement:
@@ -4838,12 +5181,17 @@ function getOrGenerateChunk(cx, cy) {
     const fw = 112 + Math.floor(rng() * 34), fh = 76 + Math.floor(rng() * 26);
     const fx = wx0 + Math.round((rng() - 0.5) * 110) - fw / 2;
     const fy = wy0 + Math.round((rng() - 0.5) * 110) - fh / 2;
-    if (!overlapsMainCourtyard(fx + fw / 2, fy + fh / 2, 110)) {
+    const wheatDry = (x, y, w, h) => (
+      sampleForestWater(x + w * 0.5, y + h * 0.5) < -18 &&
+      sampleForestWater(x, y) < -12 && sampleForestWater(x + w, y) < -12 &&
+      sampleForestWater(x, y + h) < -12 && sampleForestWater(x + w, y + h) < -12
+    );
+    if (!overlapsMainCourtyard(fx + fw / 2, fy + fh / 2, 110) && wheatDry(fx, fy, fw, fh)) {
       addWheatFieldPlot(chunk.wheatFields, chunk.grass, chunk.props, fx, fy, fw, fh, rng);
       if (chunkBiome === 0 && rng() < 0.50) {
         const fx2 = fx + (rng() < 0.5 ? fw + 16 : -fw - 16);
         const fy2 = fy + Math.round((rng() - 0.5) * 28);
-        if (!overlapsMainCourtyard(fx2 + fw / 2, fy2 + fh / 2, 110)) {
+        if (!overlapsMainCourtyard(fx2 + fw / 2, fy2 + fh / 2, 110) && wheatDry(fx2, fy2, fw - 10, fh)) {
           addWheatFieldPlot(chunk.wheatFields, chunk.grass, chunk.props, fx2, fy2, fw - 10, fh, rng);
         }
       }
@@ -5079,10 +5427,12 @@ function rebuildActiveWorldLists(centerX, centerY, force = false, chunkRad = 1) 
   activeFloorDecor = [];
   activeLeafTrees = [];
   activeSolidProps = [];
+  activeBridges = [];
   for (let i = 0; i < activeProps.length; i++) {
     const ap = activeProps[i];
     if (ap.r > 0) activeSolidProps.push(ap);
     if (ap.kind === 'lantern') activeLanterns.push(ap);
+    if (ap.kind === 'bridge') activeBridges.push(ap);
     if (ap.kind === 'sakura' || ap.kind === 'autumn') activeLeafTrees.push(ap);
     if (floorKinds && floorKinds.has(ap.kind)) activeFloorDecor.push(ap);
   }
@@ -5101,6 +5451,23 @@ function rebuildActiveWorldLists(centerX, centerY, force = false, chunkRad = 1) 
 
 let activeLeafTrees = [];
 let activeSolidProps = [];
+let activeBridges = [];
+function isOnAnyBridge(x, y) {
+  for (let i = 0; i < activeBridges.length; i++) {
+    const br = activeBridges[i];
+    const dx = x - br.x, dy = y - br.y;
+    if (dx > 34 || dx < -34 || dy > 34 || dy < -34) continue;
+    const rot = br.rot || 0;
+    const ca = Math.cos(-rot), sa = Math.sin(-rot);
+    const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
+    if (Math.abs(lx) <= 28 && Math.abs(ly) <= 13) return true;
+  }
+  return false;
+}
+function isInAnyWater(x, y) {
+  if (isOnAnyBridge(x, y)) return false;
+  return isInPond(x, y) || sampleForestWater(x, y) > 3.5;
+}
 function spawnSakuraPetal(randomZ = false) {
   const leafTrees = activeLeafTrees.length ? activeLeafTrees : courtyardProps;
   if (!leafTrees.length) return;
@@ -5123,6 +5490,7 @@ function spawnSakuraPetal(randomZ = false) {
 
 // ---------------- ROGUELITE RUN STATE + SPRITECOOK HEAVY HIT JUICE & NEW SKILLS ----------------
 let enemies = [], xpGems = [], chests = [], blessingDrops = [], arrows = [], particles = [], shockwaves = [], lightnings = [], hitStreaks = [], floatTexts = [], ghosts = [];
+let enemyProjectiles = [], enemyTelegraphs = [], bossSpawnCount = 0;
 let skyArrows = [], slashRings = [], solarStrikes = [];
 let muzzleFlashes = [], dashBursts = [], rainZones = [], stuckArrows = [];
 let shrineToastTimer = 0;
@@ -5142,7 +5510,7 @@ function defaultPlayerStats() {
     dmgMul: 1.0, atkSpdAdd: 0, extraProj: 0, projSpdAdd: 0, rangeMul: 1.0,
     critAdd: 0, critDmgAdd: 0, sizeMul: 1.0,
     xpMul: 1.0, luckAdd: 0, goldMul: 1.0,
-    moveSpdAdd: 0, armorAdd: 0, hpRegen: 0, magnetMul: 1.0, magnetAdd: 0,
+    moveSpdAdd: 0, extraDashCharges: 0, armorAdd: 0, hpRegen: 0, magnetMul: 1.0, magnetAdd: 0,
   };
 }
 
@@ -5152,13 +5520,15 @@ const player = {
   loAnim: 'idle', loFrame: 0, loTimer: 0,
   hiAnim: 'idle', hiFrame: 0, hiTimer: 0,
   shooting: false, shotFired: false,
-  dashTimer: 0, dashCd: 0, dashDx: 0, dashDy: 0,
+  dashTimer: 0, dashCd: 0, dashCharges: 1, dashRecharge: 0, dashPostDelay: 0, dashDx: 0, dashDy: 0,
   rainCd: 0, chronoCd: 0, chronoTimer: 0,
   walkToggle: false,
   hp: 100, maxHp: 100, hurtCd: 0, kevinCd: 0, squash: 0,
   lvl: 1, xp: 0, xpNext: 23,
   onigiri: {}, items: {}, stats: defaultPlayerStats(),
 };
+
+function getMaxDashCharges() { return Math.min(6, 1 + (player.stats.extraDashCharges || 0)); }
 
 function oniStackOf(id) { return player.onigiri[id] || 0; }
 function stackOf(id) { return player.items[id] || 0; }
@@ -5204,24 +5574,28 @@ function calcXpNext(lvl) {
 }
 
 const ROMAN_STAGE = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-// Megabonk Multi-Vector Run Scaling: Stage Tier step-jumps + Time quadratic ramp + Global Difficulty multiplier
+// Megabonk Multi-Vector Run Scaling: Stage Tier + Wave + Time + Global Difficulty + Outer-World Depth Threat!
 function getRunScaling() {
   const mins = runTime / 60;
-  const stageTier = 1 + Math.floor(mins / 1.5); // New Stage every 90s (0:00, 1:30, 3:00, 4:30...)
-  const stageJump = Math.pow(1.48, stageTier - 1);
-  const diffMul = difficultyPct / 100;
-  const timeCurve = (1 + mins * 0.65 + mins * mins * 0.28) * stageJump;
+  const stageTier = 1 + Math.floor(mins / 1.25); // Escalates every 75s (I, II, III, IV...)
+  const stageJump = Math.pow(1.42, stageTier - 1);
+  const distFromOrigin = Math.hypot(player.x, player.y);
+  const distBonusPct = Math.min(85, Math.floor(Math.max(0, distFromOrigin - 380) / 22));
+  const effDiffPct = difficultyPct + distBonusPct;
+  const diffMul = effDiffPct / 100;
+  const waveCurve = 1 + (waveNum - 1) * 0.14;
+  const timeCurve = (1 + mins * 0.62 + mins * mins * 0.28) * stageJump * (0.85 + 0.15 * waveCurve);
   const hpScale = timeCurve * Math.pow(diffMul, 1.18);
-  const dmgScale = (1 + mins * 0.24 + (stageTier - 1) * 0.22) * Math.pow(diffMul, 0.55);
-  const speedAdd = Math.min(28, (stageTier - 1) * 4.5 + mins * 2.2 + (diffMul - 1) * 6);
-  const xpScale = (1 + mins * 0.26 + (stageTier - 1) * 0.20) * (1 + (diffMul - 1) * 0.85);
-  const goldScale = (1 + mins * 0.22 + (stageTier - 1) * 0.18) * (1 + (diffMul - 1) * 0.90);
+  const dmgScale = (1 + mins * 0.25 + (stageTier - 1) * 0.22 + (waveNum - 1) * 0.04) * Math.pow(diffMul, 0.58);
+  const speedAdd = Math.min(30, (stageTier - 1) * 4.5 + mins * 2.2 + (diffMul - 1) * 6.5);
+  const xpScale = (1 + mins * 0.28 + (stageTier - 1) * 0.22) * (1 + (diffMul - 1) * 0.90);
+  const goldScale = (1 + mins * 0.24 + (stageTier - 1) * 0.20) * (1 + (diffMul - 1) * 0.95);
   const swarmBoost = swarmActiveTimer > 0 ? 1.85 : 1.0;
   const maxEnemies = Math.min(84, Math.round((10 + waveNum * 4.5 + (stageTier - 1) * 7) * (0.75 + diffMul * 0.35) * (swarmActiveTimer > 0 ? 1.25 : 1.0)));
-  const spawnInterval = Math.max(0.20, (1.75 / (1 + mins * 0.42 + (stageTier - 1) * 0.28)) / (Math.pow(diffMul, 0.55) * swarmBoost));
+  const spawnInterval = Math.max(0.20, (1.72 / (1 + mins * 0.44 + (stageTier - 1) * 0.28)) / (Math.pow(diffMul, 0.55) * swarmBoost));
   const packSize = Math.min(4, 1 + Math.floor((diffMul - 1) * 1.4 + (stageTier - 1) * 0.55) + (swarmActiveTimer > 0 ? 1 : 0));
-  const eliteChance = Math.min(0.45, (waveNum >= 2 ? 0.08 + mins * 0.045 + (stageTier - 1) * 0.04 : 0) * Math.pow(diffMul, 0.45));
-  return { stageTier, diffMul, hpScale, dmgScale, speedAdd, xpScale, goldScale, maxEnemies, spawnInterval, packSize, eliteChance };
+  const eliteChance = Math.min(0.45, (waveNum >= 2 ? 0.09 + mins * 0.048 + (stageTier - 1) * 0.045 : 0) * Math.pow(diffMul, 0.45));
+  return { stageTier, diffMul, effDiffPct, distFromOrigin, hpScale, dmgScale, speedAdd, xpScale, goldScale, maxEnemies, spawnInterval, packSize, eliteChance };
 }
 
 // Camera reverted to Q/E & RMB-drag rotation + pixel-perfect sub-pixel lock (zero decor jitter during movement!)
@@ -5374,18 +5748,30 @@ function resolveWorldCollision(ent, rad, prevX = ent.x, prevY = ent.y) {
       }
     }
   }
-  if (!hasCentralPond || Math.abs(ent.x - POND_CX) > POND_W * 0.6 || Math.abs(ent.y - POND_CY) > POND_H * 0.6) return;
-  let onBridge = false;
-  for (const p of courtyardProps) {
-    if (p.kind === 'bridge' && Math.abs(ent.x - p.x) < 26 && Math.abs(ent.y - p.y) < 12) {
-      onBridge = true; break;
-    }
-  }
+  const onBridge = isOnAnyBridge(ent.x, ent.y);
   if (!onBridge) {
-    let pondGuard = 0;
-    while (isInPond(ent.x, ent.y) && pondGuard++ < 18) {
-      const dx = ent.x - POND_CX, dy = ent.y - POND_CY, d = Math.hypot(dx, dy) || 1;
-      ent.x += (dx / d) * 3.5; ent.y += (dy / d) * 3.5;
+    if (hasCentralPond && Math.abs(ent.x - POND_CX) <= POND_W * 0.6 && Math.abs(ent.y - POND_CY) <= POND_H * 0.6) {
+      let pondGuard = 0;
+      while (isInPond(ent.x, ent.y) && pondGuard++ < 18) {
+        const dx = ent.x - POND_CX, dy = ent.y - POND_CY, d = Math.hypot(dx, dy) || 1;
+        ent.x += (dx / d) * 3.5; ent.y += (dy / d) * 3.5;
+      }
+    }
+    // Forest rivers & lakes: block walking into deep water (Shadow Dash lets the heroine leap across narrow streams!)
+    const isDashingHero = (ent === player && player.dashTimer > 0);
+    if (!isDashingHero && sampleForestWater(ent.x, ent.y) > 4.2) {
+      let wGuard = 0;
+      while (sampleForestWater(ent.x, ent.y) > 4.2 && !isOnAnyBridge(ent.x, ent.y) && wGuard++ < 10) {
+        const gx = sampleForestWater(ent.x + 4, ent.y) - sampleForestWater(ent.x - 4, ent.y);
+        const gy = sampleForestWater(ent.x, ent.y + 4) - sampleForestWater(ent.x, ent.y - 4);
+        const gl = Math.hypot(gx, gy);
+        if (gl > 0.01) {
+          ent.x -= (gx / gl) * 3.2;
+          ent.y -= (gy / gl) * 3.2;
+        } else {
+          ent.x = prevX; ent.y = prevY; break;
+        }
+      }
     }
   }
 }
@@ -5493,7 +5879,7 @@ function damageEnemy(en, rawDmg, srcType, knockAngle, procDepth = 0, forceCrit =
 
   // 2) Snappy Impulse Knockback + Directional Cone Sparks & Slash Streak!
   if (knockAngle !== null) {
-    const kb = (en.isBoss ? 34 : (srcType === 'iaido' ? 195 : 150)) * (isCrit ? 1.32 : 1.0);
+    const kb = (en.isBoss ? 34 : (srcType === 'iaido' ? 195 : 150)) * (isCrit ? 1.32 : 1.0) * (1.0 - (en.kbRes || 0));
     en.vx += Math.cos(knockAngle) * kb;
     en.vy += Math.sin(knockAngle) * kb;
     spawnParticles(en.x, en.y, 14, isCrit ? 8 : 5, ['#ffffff', '#fae04b', en.flashCol], isCrit ? 105 : 75, knockAngle, 0.48);
@@ -5578,8 +5964,8 @@ function damageEnemy(en, rawDmg, srcType, knockAngle, procDepth = 0, forceCrit =
     const rs = getRunScaling();
     const xpMul = getXpMul();
     const goldMul = getGoldMul();
-    const baseXp = en.isBoss ? 58 : (en.elite ? 16 : (en.fast ? 4 : 5));
-    const baseGold = en.isBoss ? 34 : (en.elite ? 10 : (en.fast ? 2 : 3));
+    const baseXp = (en.isBoss ? 64 : (en.elite ? 16 : 5)) * (en.xpMul || 1.0);
+    const baseGold = (en.isBoss ? 38 : (en.elite ? 10 : 3)) * (en.goldMul || 1.0);
     const xpVal = Math.max(1, Math.round(baseXp * rs.xpScale * xpMul));
     const goldVal = Math.max(1, Math.round(baseGold * rs.goldScale * goldMul));
     const nGems = en.isBoss ? 5 : (en.elite ? 2 : 1);
@@ -5746,37 +6132,89 @@ function fireVolley(baseAngle) {
   spawnParticles(player.x + Math.cos(baseAngle) * 10, player.y + Math.sin(baseAngle) * 10, 16, 5, ['#ffffff', mfCol], 34, baseAngle, 0.48);
 }
 
+function damagePlayer(rawDmg) {
+  if (player.hurtCd > 0 || player.dashTimer > 0 || gameOver) return false;
+  const takenDmg = Math.max(1, Math.round(rawDmg * (1 - getArmorDR())));
+  player.hp = Math.max(0, player.hp - takenDmg);
+  player.hurtCd = 0.55;
+  player.squash = -0.30;
+  hitStopTimer = 0.032;
+  addFloatText(player.x, player.y, 32, `-${takenDmg}`, '#ff5c6c', true);
+  if (player.hp <= 0) {
+    if (stackOf('leech_crystal') > 0 && player.kevinCd <= 0) {
+      player.kevinCd = 30;
+      player.hp = Math.max(15, Math.round(player.maxHp * 0.30));
+      player.hurtCd = 1.25;
+      shockwaves.push({ x: player.x, y: player.y, r: 8, maxR: 78, c: '#ff5268', life: 0.36, maxLife: 0.36 });
+      spawnParticles(player.x, player.y, 16, 24, ['#ff5268', '#fae04b', '#ffffff'], 95);
+      addFloatText(player.x, player.y, 44, 'КРОВАВЫЙ КРИСТАЛЛ: СПАСЕНИЕ!', '#ff7582', true);
+      for (const o of enemies) {
+        if (!o.dead) {
+          const od = Math.hypot(o.x - player.x, o.y - player.y);
+          if (od < 85 && od > 0.1) { o.vx += ((o.x - player.x) / od) * 240; o.vy += ((o.y - player.y) / od) * 240; }
+        }
+      }
+    } else {
+      triggerGameOver();
+    }
+  }
+  return true;
+}
+
 let nextEnemyId = 1;
-function spawnEnemy(kind = 'normal') {
+function spawnEnemy(kind = 'normal', forcedArchetype = null) {
   let x = 0, y = 0;
-  for (let tries = 0; tries < 14; tries++) {
+  for (let tries = 0; tries < 18; tries++) {
     const a = Math.random() * Math.PI * 2, dist = 165 + Math.random() * 95;
     x = player.x + Math.cos(a) * dist;
     y = player.y + Math.sin(a) * dist;
-    if (!isInPond(x, y)) break;
+    if (!isInAnyWater(x, y)) break;
   }
   const rs = getRunScaling();
+  const em = window.SakuraEnemies;
   if (kind === 'boss') {
-    const bossHp = Math.round(340 * rs.hpScale * (1 + bossesKilled * 0.42));
-    const bossDmg = Math.round(18 * rs.dmgScale);
+    const rotList = em ? em.BOSS_ROTATION : ['oni_golem'];
+    const bId = forcedArchetype || rotList[bossSpawnCount % rotList.length];
+    bossSpawnCount++;
+    const bd = (em && em.BOSS_DEFS[bId]) || {
+      id: 'oni_golem', name: 'Храмовый О́ни-Голем', banner: 'ХРАМОВЫЙ О́НИ-ГОЛЕМ',
+      spriteKey: 'boss', sw: 44, nS: 42, hpMul: 1, dmgMul: 1, speed: 38, r: 14, outCol: OUTLINE_BOSS, accent: '#ff5c6c',
+    };
+    const bossHp = Math.round(350 * bd.hpMul * rs.hpScale * (1 + bossesKilled * 0.45));
+    const bossDmg = Math.round(18 * bd.dmgMul * rs.dmgScale);
     const tierTag = ROMAN_STAGE[Math.min(10, rs.stageTier)] || String(rs.stageTier);
     enemies.push({
-      id: nextEnemyId++, isBoss: true, elite: false, fast: false, x, y, vx: 0, vy: 0, dir: 0,
-      hp: bossHp, maxHp: bossHp,
-      speed: 38 + rs.speedAdd * 0.72, r: 14, dmg: bossDmg, frame: 0, fTimer: 0,
+      id: nextEnemyId++, isBoss: true, bossKind: bd.id, bossName: bd.name, bossAccent: bd.accent,
+      arch: bd.id, spriteKey: bd.spriteKey, sw: bd.sw, nS: bd.nS, outCol: bd.outCol,
+      elite: false, fast: false, x, y, vx: 0, vy: 0, dir: 0,
+      hp: bossHp, maxHp: bossHp, kbRes: 0.78, xpMul: 1.0, goldMul: 1.0,
+      speed: bd.speed + rs.speedAdd * 0.68, r: bd.r, dmg: bossDmg, frame: 0, fTimer: 0,
+      skillCd: 2.2, skillStep: 0, chargeTimer: 0, chargeDx: 0, chargeDy: 0,
       flash: 0, flashCol: '#fae04b', squash: 0, hitAngle: 0, frostTimer: 0, dead: false,
     });
-    addFloatText(player.x, player.y, 44, `БОСС ЭТАПА ${tierTag}: ХРАМОВЫЙ ОНИ!`, '#ff5c6c', true);
+    addFloatText(player.x, player.y, 44, `БОСС ЭТАПА ${tierTag}: ${bd.banner}!`, bd.accent || '#ff5c6c', true);
     return;
   }
-  const elite = kind === 'elite', fast = kind === 'fast';
-  const baseHp = elite ? 105 : (fast ? 18 : 26);
-  const hp = Math.round(baseHp * rs.hpScale);
-  const dmg = Math.round((elite ? 13 : (fast ? 8 : 7)) * rs.dmgScale);
+  const elite = kind === 'elite';
+  const fast = kind === 'fast';
+  const archId = forcedArchetype || (fast ? 'shinobi' : (em ? em.pickEnemyArchetype(waveNum, rs.stageTier, rs.distFromOrigin) : 'ashigaru'));
+  const def = (em && em.ENEMY_DEFS[archId]) || {
+    id: 'ashigaru', spriteKey: 'dummy', sw: 28, nS: 26, hpMul: 1, dmgMul: 1, speed: 38, r: 8, kbRes: 0, xpMul: 1, goldMul: 1, outCol: OUTLINE_DUMMY,
+  };
+  const eliteHpMul = elite ? 3.4 : 1.0;
+  const eliteDmgMul = elite ? 1.55 : 1.0;
+  const hp = Math.round(26 * def.hpMul * eliteHpMul * rs.hpScale);
+  const dmg = Math.round(7.5 * def.dmgMul * eliteDmgMul * rs.dmgScale);
+  const spd = (def.speed * (elite ? 0.92 : 1.0)) + rs.speedAdd * (def.id === 'shinobi' ? 0.62 : 0.80);
   enemies.push({
-    id: nextEnemyId++, isBoss: false, elite, fast, x, y, vx: 0, vy: 0, dir: 0, hp, maxHp: hp,
-    speed: (fast ? 58 : (elite ? 31 : 38)) + rs.speedAdd * (fast ? 0.65 : 0.85),
-    r: elite ? 10 : 8, dmg, frame: Math.floor(Math.random() * 4), fTimer: 0,
+    id: nextEnemyId++, isBoss: false, elite, fast: def.id === 'shinobi',
+    arch: def.id, spriteKey: def.spriteKey, sw: def.sw, nS: def.nS, outCol: def.outCol,
+    kbRes: elite ? Math.min(0.75, (def.kbRes || 0) + 0.25) : (def.kbRes || 0),
+    xpMul: def.xpMul || 1.0, goldMul: def.goldMul || 1.0,
+    x, y, vx: 0, vy: 0, dir: 0, hp, maxHp: hp,
+    speed: spd, r: elite ? def.r + 1.5 : def.r, dmg,
+    skillCd: 1.4 + Math.random() * 1.6, aimTimer: 0, lungeTimer: 0, armed: false,
+    frame: Math.floor(Math.random() * 4), fTimer: 0,
     flash: 0, flashCol: '#ff4d6d', squash: 0, hitAngle: 0, frostTimer: 0, dead: false,
   });
 }
@@ -5818,6 +6256,18 @@ const SHRINE_BLESSINGS = [
   { id: 'sh_range', icon: 'oni_range', name: 'Благословение Дальности',
     baseVal: 14, fmt: v => `+${fmtStat(v)}% [[range|Дальность]] атаки и +${fmtStat(v * 0.85)}% скорость стрел.`,
     apply: v => { player.stats.rangeMul += v / 100; player.stats.projSpdAdd += (v * 0.85) / 100; } },
+  { id: 'sh_dash', icon: 'oni_move', name: 'Шаг Ветра (+Рывок)',
+    baseVal: 1, fmt: v => {
+      const ch = v >= 1.9 ? 2 : 1;
+      const spd = Math.round(v * 7);
+      return `+${ch} ${ch === 1 ? 'заряд' : 'заряда'} Рывка (Спринта) и +${spd}% скорость бега.`;
+    },
+    apply: v => {
+      const ch = v >= 1.9 ? 2 : 1;
+      player.stats.extraDashCharges = Math.min(5, (player.stats.extraDashCharges || 0) + ch);
+      player.dashCharges = Math.min(getMaxDashCharges(), (player.dashCharges || 0) + ch);
+      player.stats.moveSpdAdd += (v * 7) / 100;
+    } },
 ];
 
 function rollMegabonkRarity(tier = 'normal', extraLuck = 0) {
@@ -5940,10 +6390,11 @@ function applyOnigiriUpgrade(id, val) {
     player.hp = Math.min(player.maxHp, player.hp + addHp);
     st.armorAdd += (val * 0.48) / 100;
     st.hpRegen += val * 0.024;
-    st.moveSpdAdd += (val * 0.32) / 100;
   } else if (id === 'oni_range') {
     st.rangeMul += val / 100;
     st.projSpdAdd += (val * 0.85) / 100;
+  } else if (id === 'oni_move') {
+    st.moveSpdAdd += val / 100;
   }
 }
 
@@ -5965,7 +6416,11 @@ const RARITY_COLORS = {
 };
 
 function rollRandomShrineBlessing(extraLuck = 0) {
-  const sh = SHRINE_BLESSINGS[Math.floor(Math.random() * SHRINE_BLESSINGS.length)];
+  // Boost Sprint-Charge blessing chance on shrines so players reliably unlock extra Shadow Dashes!
+  const dashSh = SHRINE_BLESSINGS.find(s => s.id === 'sh_dash');
+  const sh = (dashSh && (player.stats.extraDashCharges || 0) < 3 && Math.random() < 0.32)
+    ? dashSh
+    : SHRINE_BLESSINGS[Math.floor(Math.random() * SHRINE_BLESSINGS.length)];
   const rarity = rollMegabonkRarity('shrine', extraLuck);
   const val = sh.baseVal * RARITY_MULT[rarity];
   return {
@@ -6046,9 +6501,11 @@ function activateAltar(al) {
   } else if (al.kind === 'altar_succ') {
     const pulled = vacuumAllXpGems();
     player.stats.magnetAdd += 25;
+    player.dashCharges = getMaxDashCharges();
+    player.dashRecharge = 0;
     spawnParticles(al.x, al.y, 18, 28, ['#5ce1e6', '#d4ffff', '#ffffff'], 95);
     shockwaves.push({ x: al.x, y: al.y, r: 10, maxR: 160, c: '#5ce1e6', life: 0.45, maxLife: 0.45 });
-    addFloatText(al.x, al.y, 46, `СТУПА ГОРИНТО! (${pulled} XP +25px ПРИТЯЖ.)`, '#6ef2ff', true);
+    addFloatText(al.x, al.y, 46, `СТУПА ГОРИНТО! (${pulled} XP +25px · РЫВКИ ПОЛНЫ)`, '#6ef2ff', true);
   }
 }
 
@@ -6119,15 +6576,16 @@ function getOnigiriCurrentSummary(oni) {
   if (oni.id === 'oni_size') return `Сейчас: AoE ×${st.sizeMul.toFixed(2)}.`;
   if (oni.id === 'oni_xp') return `Сейчас: XP ×${st.xpMul.toFixed(2)}, магнит ${Math.round(getMagnetRadius())}px.`;
   if (oni.id === 'oni_luck') return `Сейчас: удача +${Math.round(st.luckAdd * 100)}%, золото ×${st.goldMul.toFixed(2)}.`;
-  if (oni.id === 'oni_vit') return `Сейчас: ${player.maxHp} HP, броня ${Math.round(st.armorAdd * 100)}% (-${Math.round(getArmorDR() * 100)}% урона), ${st.hpRegen.toFixed(1)} HP/с, бег ${Math.round(getMoveSpeedMul() * 100)}%.`;
+  if (oni.id === 'oni_vit') return `Сейчас: ${player.maxHp} HP, броня ${Math.round(st.armorAdd * 100)}% (-${Math.round(getArmorDR() * 100)}% урона), ${st.hpRegen.toFixed(1)} HP/с.`;
   if (oni.id === 'oni_range') return `Сейчас: дальность ${getAttackRange()}px (×${st.rangeMul.toFixed(2)}), скорость стрел ${Math.round(getProjSpeedMul() * 100)}%.`;
+  if (oni.id === 'oni_move') return `Сейчас: бег ${Math.round(getMoveSpeedMul() * 100)}%, КД Рывка ${getDashCdMax().toFixed(1)}с (${getMaxDashCharges()} зар.).`;
   return stripKeywordMarkup(oni.fmt(oni.baseVal));
 }
 function getOnigiriTierRangeText(oni) {
   const minV = oni.baseVal * RARITY_MULT.common;
   const maxV = oni.baseVal * RARITY_MULT.legend;
   if (oni.id === 'oni_qty') return 'Тиры 1–5: +1 стрела → +2 стрелы и +10% скорость.';
-  if (oni.id === 'oni_vit') return `Тиры 1–5: +${Math.round(minV)} → +${Math.round(maxV)} HP, броня, реген и бег.`;
+  if (oni.id === 'oni_vit') return `Тиры 1–5: +${Math.round(minV)} → +${Math.round(maxV)} HP, броня и реген.`;
   return `Тиры 1–5: +${fmtStat(minV)}% → +${fmtStat(maxV)}%.`;
 }
 function bindOnigiriTooltip(el, oni) {
@@ -6152,8 +6610,8 @@ function bindActiveSkillTooltips() {
   const activeDefs = {
     dashPill: () => ({
       title: 'Теневой Рывок [Shift]',
-      meta: `КД ${getDashCdMax().toFixed(1)}с`,
-      desc: `Рывок с неуязвимостью на 0.25с. Дальность и КД улучшаются Онигири Живучести.`,
+      meta: `Заряды ${player.dashCharges}/${getMaxDashCharges()} · КД ${getDashCdMax().toFixed(1)}с`,
+      desc: `Рывок с неуязвимостью на 0.25с. Дальность и КД улучшаются Онигири Ветра, а доп. заряды выпадают с Алтарей (Каменная Хокора).`,
     }),
     rainPill: () => ({
       title: 'Ливень Стрел [R]',
@@ -6453,18 +6911,18 @@ function resetRun() {
   const nextSeed = initialSeedOverride || Math.floor(100 + Math.random() * 899);
   initialSeedOverride = null;
   generateRandomLevel(nextSeed);
-  enemies = []; xpGems = []; chests = []; blessingDrops = []; arrows = []; particles = []; shockwaves = []; lightnings = []; hitStreaks = []; floatTexts = []; ghosts = [];
+  enemies = []; enemyProjectiles = []; enemyTelegraphs = []; xpGems = []; chests = []; blessingDrops = []; arrows = []; particles = []; shockwaves = []; lightnings = []; hitStreaks = []; floatTexts = []; ghosts = [];
   skyArrows = []; slashRings = []; solarStrikes = [];
   muzzleFlashes = []; dashBursts = []; rainZones = []; stuckArrows = [];
   shrineToastTimer = 0; if ($('shrineToast')) $('shrineToast').className = '';
   paused = false; gameOver = false; inspectOnlyModal = false; pendingOffers = [];
-  runTime = 0; waveNum = 1; kills = 0; gold = 15; difficultyPct = 100; spawnTimer = 0; bossTimer = 50; hitStopTimer = 0; hitStopCd = 0;
+  runTime = 0; waveNum = 1; kills = 0; gold = 15; difficultyPct = 100; spawnTimer = 0; bossTimer = 46; hitStopTimer = 0; hitStopCd = 0;
   elitePity = 0; volleyCount = 0; iaidoTimer = 0; meteorTimer = 0;
-  bossesKilled = 0; lastStageTier = 1; nextSwarmAt = 48; swarmActiveTimer = 0;
+  bossesKilled = 0; bossSpawnCount = 0; lastStageTier = 1; nextSwarmAt = 48; swarmActiveTimer = 0;
   Object.assign(player, {
     x: 0, y: 18, vx: 0, vy: 0, hp: 100, maxHp: 100, hurtCd: 0, kevinCd: 0, squash: 0,
     lvl: 1, xp: 0, xpNext: calcXpNext(1), onigiri: {}, items: {}, stats: defaultPlayerStats(), shooting: false,
-    dashTimer: 0, dashCd: 0, rainCd: 0, chronoCd: 0, chronoTimer: 0,
+    dashTimer: 0, dashCd: 0, dashCharges: 1, dashRecharge: 0, dashPostDelay: 0, rainCd: 0, chronoCd: 0, chronoTimer: 0,
   });
   camX = 0; camY = 18; rCamX = 0; rCamY = 18; camKickX = 0; camKickY = 0;
   rebuildActiveWorldLists(player.x, player.y, true);
@@ -6477,13 +6935,14 @@ function resetRun() {
     // Reproduces the exact user Wave 21 late-game crowd-clearing build (Kitsune + Raijin Lightning + Tengu Dragon Bow x2 + Sakura Blades x2 + 55 enemies + Boss!)
     runTime = 406; waveNum = 21; difficultyPct = 130; player.lvl = 20; player.xpNext = 99999;
     nextSwarmAt = runTime + 40; bossTimer = 45;
-    player.onigiri = { oni_dmg: 2, oni_cd: 1, oni_qty: 2, oni_crit: 4, oni_size: 2, oni_xp: 3, oni_luck: 1, oni_vit: 2, oni_range: 2 };
+    player.onigiri = { oni_dmg: 2, oni_cd: 1, oni_qty: 2, oni_crit: 4, oni_size: 2, oni_xp: 3, oni_luck: 1, oni_vit: 2, oni_range: 2, oni_move: 2 };
     player.items = { wisp: 1, lightning: 1, spirit_bow: 2, blades: 2 };
     Object.assign(player.stats, {
       dmgMul: 1.26, atkSpdAdd: 0.12, extraProj: 2, projSpdAdd: 0.32, rangeMul: 1.26,
       critAdd: 0.40, critDmgAdd: 0.62, sizeMul: 1.26, xpMul: 1.57, luckAdd: 0.08, goldMul: 1.44,
-      moveSpdAdd: 0.35, armorAdd: 0.52, hpRegen: 2.6, magnetMul: 1.54,
+      moveSpdAdd: 0.35, extraDashCharges: 2, armorAdd: 0.52, hpRegen: 2.6, magnetMul: 1.54,
     });
+    player.dashCharges = 3;
     player.maxHp = 208; player.hp = 208;
     $('waveNum').textContent = '21 · V'; $('diffTxt').textContent = '130%';
     refreshInventoryUI();
@@ -7324,6 +7783,7 @@ function loop(ts) {
     const mm = Math.floor(runTime / 60), ss = String(Math.floor(runTime % 60)).padStart(2, '0');
     setHudText('runTime', `${mm}:${ss}`);
     setHudText('waveNum', `${waveNum} · ${stageRoman}`);
+    setHudText('diffTxt', `${rs.effDiffPct}%`);
 
     // Megabonk Stage Tier Escalation (every 90s): step-jump in enemy HP, density & rewards!
     if (rs.stageTier > lastStageTier) {
@@ -7422,22 +7882,41 @@ function loop(ts) {
 
     if (hasEnemyLock || mouseDown || keys['Space']) startShoot();
 
-    // 1) Active Skill [Shift]: Shadow Dash (+ Iaido Katana Slash if 'katana_counter' owned!)
+    // 1) Active Skill [Shift]: Multi-Charge Shadow Dash (+ Iaido Katana Slash if 'katana_counter' owned!)
     const cdMax = getDashCdMax();
-    if (player.dashCd > 0) player.dashCd = Math.max(0, player.dashCd - dt);
+    const maxDashCh = getMaxDashCharges();
+    if (player.dashPostDelay > 0) player.dashPostDelay = Math.max(0, player.dashPostDelay - dt);
+    if (player.dashCharges < maxDashCh) {
+      player.dashRecharge += dt;
+      while (player.dashRecharge >= cdMax && player.dashCharges < maxDashCh) {
+        player.dashRecharge -= cdMax;
+        player.dashCharges++;
+      }
+      if (player.dashCharges >= maxDashCh) player.dashRecharge = 0;
+    } else {
+      player.dashRecharge = 0;
+    }
+    player.dashCd = player.dashCharges < maxDashCh ? Math.max(0, cdMax - player.dashRecharge) : 0;
     if (keys['ShiftLeft'] || keys['ShiftRight']) {
-      if (player.dashCd <= 0 && player.dashTimer <= 0) {
+      if (player.dashCharges > 0 && player.dashTimer <= 0 && player.dashPostDelay <= 0) {
         const da = moving ? Math.atan2(mvY, mvX) : targetAimAngle;
         player.dashDx = Math.cos(da); player.dashDy = Math.sin(da);
-        player.dashTimer = 0.25; player.dashCd = cdMax;
+        player.dashTimer = 0.25; player.dashPostDelay = 0.14;
+        player.dashCharges = Math.max(0, player.dashCharges - 1);
         player.squash = 0.28;
         dashBursts.push({ x: player.x, y: player.y, angle: da, c: player.chronoTimer > 0 ? '#5ce1e6' : '#f8b5c2', life: 0.22, maxLife: 0.22 });
         spawnParticles(player.x, player.y, 4, 12, ['#f8b5c2', '#f7c552', '#ffffff'], 52);
         if (stackOf('katana_counter') > 0) triggerIaidoSlash();
       }
     }
-    $('dashFill').style.width = `${Math.round((1 - player.dashCd / cdMax) * 100)}%`;
-    $('dashTxt').textContent = player.dashCd > 0.05 ? `[Shift] ${player.dashCd.toFixed(1)}с` : '[Shift] РЫВОК';
+    const dashFillPct = maxDashCh > 1
+      ? Math.round(((player.dashCharges + (player.dashCharges < maxDashCh ? player.dashRecharge / cdMax : 0)) / maxDashCh) * 100)
+      : Math.round((player.dashCharges > 0 ? 1 : (player.dashRecharge / cdMax)) * 100);
+    setHudWidth('dashFill', `${Math.max(0, Math.min(100, dashFillPct))}%`);
+    const dashLabel = maxDashCh > 1
+      ? (player.dashCharges > 0 ? `[Shift] РЫВОК ${player.dashCharges}/${maxDashCh}` : `[Shift] ${player.dashCd.toFixed(1)}с 0/${maxDashCh}`)
+      : (player.dashCharges > 0 ? '[Shift] РЫВОК' : `[Shift] ${player.dashCd.toFixed(1)}с`);
+    setHudText('dashTxt', dashLabel);
 
     // 2) Active Skill [R]: Arrow Rain (Manual KeyR OR smart Auto-Cast when 3+ enemies or a boss are in attack range!)
     const rainMax = getRainCdMax();
@@ -7629,8 +8108,155 @@ function loop(ts) {
       const exPrev = en.x, eyPrev = en.y;
       if (dist > 4) {
         en.dir = Math.atan2(dy, dx);
-        const mx = (dx / dist) * (en.speed * moveSlow) + en.vx;
-        const my = (dy / dist) * (en.speed * moveSlow) + en.vy;
+        let spdMul = 1.0;
+        let mx = 0, my = 0;
+
+        // Archetype-specific AI behaviors!
+        if (en.isBoss) {
+          if (en.chargeTimer > 0) {
+            en.chargeTimer = Math.max(0, en.chargeTimer - dt * moveSlow);
+            mx = en.chargeDx * (en.speed * 3.1 * moveSlow) + en.vx;
+            my = en.chargeDy * (en.speed * 3.1 * moveSlow) + en.vy;
+            if (Math.random() < 0.45 && particles.length < MAX_PARTICLES) {
+              particles.push({ x: en.x, y: en.y, z: 10, vx: -en.chargeDx * 30, vy: -en.chargeDy * 30, vz: 18, c: en.bossAccent || '#ff5c6c', life: 0.24 });
+            }
+          } else {
+            // Boss special attack cadence (speeds up slightly with Stage Tier!)
+            en.skillCd = (en.skillCd || 2.5) - dt * moveSlow;
+            if (en.skillCd <= 0 && dist < 240) {
+              const bStep = (en.skillStep || 0) % 2;
+              en.skillStep = (en.skillStep || 0) + 1;
+              en.skillCd = Math.max(2.1, 3.6 - (rs.stageTier - 1) * 0.16);
+              if (en.bossKind === 'shogun') {
+                if (bStep === 0 && enemyProjectiles.length < 44) {
+                  // 5-Way Spectral Crescent Blade Fan
+                  const baseA = Math.atan2(dy, dx);
+                  for (let k = -2; k <= 2; k++) {
+                    const pa = baseA + k * 0.21;
+                    enemyProjectiles.push({
+                      x: en.x + Math.cos(pa) * 14, y: en.y + Math.sin(pa) * 14, z: 16,
+                      vx: Math.cos(pa) * 148, vy: Math.sin(pa) * 148, angle: pa,
+                      r: 7, dmg: Math.round(en.dmg * 0.9), life: 2.3, kind: 'shogun_wave',
+                    });
+                  }
+                  shockwaves.push({ x: en.x, y: en.y, r: 8, maxR: 52, c: '#b87cff', life: 0.28, maxLife: 0.28 });
+                } else if (enemyTelegraphs.length < 16) {
+                  // Telegraphed Shadow Blink Slash at player's spot
+                  const tx = player.x + (Math.random() - 0.5) * 18, ty = player.y + (Math.random() - 0.5) * 18;
+                  enemyTelegraphs.push({
+                    x: tx, y: ty, r: 44, timer: 0.92, maxTimer: 0.92, dmg: Math.round(en.dmg * 1.15),
+                    color: '#c78cff', fillCol: 'rgba(168, 92, 255, 0.16)', chargeCol: 'rgba(196, 128, 255, 0.30)',
+                    owner: en, kind: 'shogun_blink',
+                  });
+                }
+              } else if (en.bossKind === 'kitsune_boss') {
+                if (bStep === 0 && enemyProjectiles.length < 42) {
+                  // Spiral 6-Orb Fox-Fire Barrage
+                  const baseA = Math.atan2(dy, dx) + (en.skillStep * 0.35);
+                  for (let k = 0; k < 6; k++) {
+                    const pa = baseA + (k / 6) * Math.PI * 2;
+                    enemyProjectiles.push({
+                      x: en.x + Math.cos(pa) * 14, y: en.y + Math.sin(pa) * 14, z: 18,
+                      vx: Math.cos(pa) * 118, vy: Math.sin(pa) * 118, angle: pa,
+                      r: 6, dmg: Math.round(en.dmg * 0.85), life: 2.8, kind: 'foxfire',
+                    });
+                  }
+                  spawnParticles(en.x, en.y, 18, 12, ['#ff9d3b', '#fff2a6', '#ff4d4d'], 75);
+                } else if (enemyTelegraphs.length < 14) {
+                  // 3 Foxfire Meteor Telegraphs around player
+                  for (let m = 0; m < 3; m++) {
+                    const ma = (m / 3) * Math.PI * 2 + Math.random() * 0.8;
+                    const mr = m === 0 ? 12 : (34 + Math.random() * 28);
+                    enemyTelegraphs.push({
+                      x: player.x + Math.cos(ma) * mr, y: player.y + Math.sin(ma) * mr,
+                      r: 32, timer: 1.05 + m * 0.14, maxTimer: 1.05 + m * 0.14,
+                      dmg: Math.round(en.dmg * 1.05), color: '#ff9642',
+                      fillCol: 'rgba(255, 118, 42, 0.16)', chargeCol: 'rgba(255, 170, 56, 0.30)',
+                      owner: en, kind: 'foxfire_meteor',
+                    });
+                  }
+                }
+              } else {
+                // Oni-Golem: Seismic Ground Slam OR Enraged Oni Charge!
+                if (bStep === 0 && enemyTelegraphs.length < 16) {
+                  enemyTelegraphs.push({
+                    x: en.x, y: en.y, r: 58, timer: 0.88, maxTimer: 0.88, dmg: Math.round(en.dmg * 1.25),
+                    color: '#ff5268', fillCol: 'rgba(255, 62, 82, 0.16)', chargeCol: 'rgba(255, 92, 92, 0.32)',
+                    owner: en, kind: 'oni_slam',
+                  });
+                } else {
+                  const ca = Math.atan2(dy, dx);
+                  en.chargeDx = Math.cos(ca); en.chargeDy = Math.sin(ca);
+                  en.chargeTimer = 0.45;
+                  en.squash = 0.32;
+                  shockwaves.push({ x: en.x, y: en.y, r: 6, maxR: 34, c: '#ff5c6c', life: 0.22, maxLife: 0.22 });
+                }
+              }
+            }
+            mx = (dx / dist) * (en.speed * moveSlow) + en.vx;
+            my = (dy / dist) * (en.speed * moveSlow) + en.vy;
+          }
+        } else if (en.arch === 'yumi') {
+          // Ranged Yumi Archer: stops at mid-range, aims briefly, fires dodgeable crimson spirit arrow!
+          en.skillCd -= dt * moveSlow;
+          if (dist < 152 && dist > 68) {
+            spdMul = 0.22;
+            if (en.skillCd <= 0) {
+              en.aimTimer += dt * moveSlow;
+              if (en.aimTimer >= 0.65) {
+                en.aimTimer = 0;
+                en.skillCd = Math.max(1.8, 3.0 - (rs.stageTier - 1) * 0.12);
+                if (enemyProjectiles.length < 48) {
+                  const pa = Math.atan2(dy, dx);
+                  enemyProjectiles.push({
+                    x: en.x + Math.cos(pa) * 10, y: en.y + Math.sin(pa) * 10, z: 14,
+                    vx: Math.cos(pa) * 138, vy: Math.sin(pa) * 138, angle: pa,
+                    r: 5, dmg: en.dmg, life: 2.1, kind: 'yumi_arrow',
+                  });
+                }
+              }
+            }
+          } else {
+            en.aimTimer = Math.max(0, en.aimTimer - dt);
+            spdMul = dist <= 68 ? -0.55 : 1.0;
+          }
+          mx = (dx / dist) * (en.speed * spdMul * moveSlow) + en.vx;
+          my = (dy / dist) * (en.speed * spdMul * moveSlow) + en.vy;
+        } else if (en.arch === 'kitsunebi') {
+          // Explosive Spirit Lantern: once close, arms a visible 0.78s blast telegraph ring!
+          if (!en.armed && dist < 48) {
+            en.armed = true;
+            if (enemyTelegraphs.length < 16) {
+              enemyTelegraphs.push({
+                x: en.x, y: en.y, r: 36, timer: 0.78, maxTimer: 0.78, dmg: en.dmg,
+                color: '#ff6c38', fillCol: 'rgba(255, 86, 42, 0.18)', chargeCol: 'rgba(255, 136, 48, 0.34)',
+                owner: en, kind: 'kitsunebi_blast',
+              });
+            }
+          }
+          spdMul = en.armed ? 0.18 : 1.0;
+          mx = (dx / dist) * (en.speed * spdMul * moveSlow) + en.vx;
+          my = (dy / dist) * (en.speed * spdMul * moveSlow) + en.vy;
+        } else if (en.arch === 'shinobi') {
+          // Fast Shinobi: periodic agile forward lunge!
+          if (en.lungeTimer > 0) {
+            en.lungeTimer = Math.max(0, en.lungeTimer - dt * moveSlow);
+            spdMul = 2.05;
+          } else {
+            en.skillCd -= dt * moveSlow;
+            if (en.skillCd <= 0 && dist < 118 && dist > 32) {
+              en.lungeTimer = 0.24;
+              en.skillCd = 3.0 + Math.random() * 1.0;
+              en.squash = 0.22;
+            }
+          }
+          mx = (dx / dist) * (en.speed * spdMul * moveSlow) + en.vx;
+          my = (dy / dist) * (en.speed * spdMul * moveSlow) + en.vy;
+        } else {
+          mx = (dx / dist) * (en.speed * moveSlow) + en.vx;
+          my = (dy / dist) * (en.speed * moveSlow) + en.vy;
+        }
+
         en.x += mx * dt; en.y += my * dt;
         if (((i + totalRenderFrames) & 1) === 0) disturbGrass(en.x, en.y, mx, my, 10);
       }
@@ -7652,39 +8278,62 @@ function loop(ts) {
         }
       }
       if (dist < en.r + 7 && player.hurtCd <= 0 && player.dashTimer <= 0) {
-        const takenDmg = Math.max(1, Math.round(en.dmg * (1 - getArmorDR())));
-        player.hp = Math.max(0, player.hp - takenDmg); player.hurtCd = 0.55; player.squash = -0.30;
-        hitStopTimer = 0.035;
-        addFloatText(player.x, player.y, 32, `-${takenDmg}`, '#ff5c6c', true);
-        if (player.hp <= 0) {
-          if (stackOf('leech_crystal') > 0 && player.kevinCd <= 0) {
-            player.kevinCd = 30;
-            player.hp = Math.max(15, Math.round(player.maxHp * 0.30));
-            player.hurtCd = 1.25;
-            shockwaves.push({ x: player.x, y: player.y, r: 8, maxR: 78, c: '#ff5268', life: 0.36, maxLife: 0.36 });
-            spawnParticles(player.x, player.y, 16, 24, ['#ff5268', '#fae04b', '#ffffff'], 95);
-            addFloatText(player.x, player.y, 44, 'КРОВАВЫЙ КРИСТАЛЛ: СПАСЕНИЕ!', '#ff7582', true);
-            for (const o of enemies) {
-              if (!o.dead) {
-                const od = Math.hypot(o.x - player.x, o.y - player.y);
-                if (od < 85 && od > 0.1) { o.vx += ((o.x - player.x) / od) * 240; o.vy += ((o.y - player.y) / od) * 240; }
-              }
-            }
-          } else {
-            triggerGameOver();
-          }
-        }
+        damagePlayer(en.dmg);
       }
       en.fTimer += dt * 1000 * moveSlow;
       if (en.fTimer >= ANIM_DEF.dummy.durs[en.frame]) { en.fTimer -= ANIM_DEF.dummy.durs[en.frame]; en.frame = (en.frame + 1) % 4; }
     }
     enemies = enemies.filter(e => !e.dead);
 
+    // Update enemy ground telegraphs (bomber blasts, Oni slams, Shogun shadow blinks, Kitsune meteors)
+    for (let ti = enemyTelegraphs.length - 1; ti >= 0; ti--) {
+      const tg = enemyTelegraphs[ti];
+      if (tg.owner && tg.owner.dead && tg.kind !== 'foxfire_meteor') {
+        enemyTelegraphs.splice(ti, 1);
+        continue;
+      }
+      if (tg.kind === 'kitsunebi_blast' && tg.owner) { tg.x = tg.owner.x; tg.y = tg.owner.y; }
+      if (tg.kind === 'oni_slam' && tg.owner) { tg.x = tg.owner.x; tg.y = tg.owner.y; }
+      tg.timer -= dt * chronoSlow;
+      if (tg.timer <= 0) {
+        if (tg.kind === 'shogun_blink' && tg.owner && !tg.owner.dead) {
+          tg.owner.x = tg.x; tg.owner.y = tg.y;
+          resolveWorldCollision(tg.owner, tg.owner.r, tg.owner.x, tg.owner.y);
+          slashRings.push({ x: tg.x, y: tg.y, r: tg.r, life: 0.26, maxLife: 0.26, c: '#c78cff' });
+        }
+        if (tg.kind === 'kitsunebi_blast' && tg.owner && !tg.owner.dead) {
+          tg.owner.dead = true;
+        }
+        pushShockwave({ x: tg.x, y: tg.y, r: 6, maxR: tg.r, c: tg.color || '#ff5268', kind: tg.kind === 'foxfire_meteor' || tg.kind === 'kitsunebi_blast' ? 'fire' : 'ring', life: 0.30, maxLife: 0.30 });
+        spawnParticles(tg.x, tg.y, 12, 10, [tg.color || '#ff5268', '#fae04b', '#ffffff'], 80);
+        if (Math.hypot(player.x - tg.x, player.y - tg.y) <= tg.r + 6) {
+          damagePlayer(tg.dmg);
+        }
+        enemyTelegraphs.splice(ti, 1);
+      }
+    }
+
+    // Update enemy projectiles (Yumi spirit arrows, Shogun crescent waves, Kitsune foxfire orbs)
+    for (let pi = enemyProjectiles.length - 1; pi >= 0; pi--) {
+      const pr = enemyProjectiles[pi];
+      pr.x += pr.vx * dt * chronoSlow;
+      pr.y += pr.vy * dt * chronoSlow;
+      pr.life -= dt * chronoSlow;
+      if (pr.life <= 0) { enemyProjectiles.splice(pi, 1); continue; }
+      if (Math.hypot(player.x - pr.x, player.y - pr.y) < pr.r + 7) {
+        if (player.dashTimer <= 0) {
+          damagePlayer(pr.dmg);
+          spawnParticles(pr.x, pr.y, pr.z || 14, 5, ['#ff5c6c', '#ffffff'], 48);
+          enemyProjectiles.splice(pi, 1);
+        }
+      }
+    }
+
     const activeBoss = enemies.find(e => e.isBoss);
     if (activeBoss) {
       $('bossBar').style.display = 'block';
       $('bossFill').style.width = `${Math.max(0, (activeBoss.hp / activeBoss.maxHp) * 100)}%`;
-      $('bossTxt').textContent = `БОСС: Храмовый О́ни-Голем (${activeBoss.hp} / ${activeBoss.maxHp})`;
+      $('bossTxt').textContent = `БОСС: ${activeBoss.bossName || 'Храмовый О́ни-Голем'} (${activeBoss.hp} / ${activeBoss.maxHp})`;
     } else $('bossBar').style.display = 'none';
 
     for (let i = arrows.length - 1; i >= 0; i--) {
@@ -8098,6 +8747,29 @@ function loop(ts) {
     }
     g.restore();
 
+    if (z === 0) {
+      // Lightweight animated sunlight glints & gentle current lines on visible outer Forest Rivers & Lakes (<0.04ms!)
+      const gStep = 36;
+      const gx0 = Math.floor((rCamX - visGroundR) / gStep) * gStep;
+      const gx1 = rCamX + visGroundR;
+      const gy0 = Math.floor((rCamY - visGroundR) / gStep) * gStep;
+      const gy1 = rCamY + visGroundR;
+      g.fillStyle = 'rgba(218, 246, 255, 0.58)';
+      const drift = (tSec * 9) % gStep;
+      for (let wy = gy0; wy <= gy1; wy += gStep) {
+        for (let wx = gx0; wx <= gx1; wx += gStep) {
+          const sx0 = wx + ((wy * 13) & 15) + drift;
+          const sy0 = wy + ((wx * 7) & 15);
+          if (sampleForestWater(sx0, sy0) > 4.0) {
+            const [psx, psy] = w2s(sx0, sy0, W, H, tilt);
+            if (psx >= 0 && psx < W && psy >= 0 && psy < H) {
+              const tw = Math.sin(tSec * 3.4 + wx * 0.07 + wy * 0.05);
+              if (tw > 0.15) g.fillRect(Math.round(psx + shkX), Math.round(psy + shkY + 2), tw > 0.65 ? 3 : 2, 1);
+            }
+          }
+        }
+      }
+    }
     // Right after z=0, draw the SUNKEN Distance-Field Koi Pond + Throttled 20Hz Wavy Reflections!
     if (z === 0 && pondVisible) {
       g.save();
@@ -8278,6 +8950,9 @@ function loop(ts) {
     vfx.drawShockwaves(g, shockwaves, w2s, W, H, tilt, shkX, shkY);
     vfx.drawDashBursts(g, dashBursts, w2s, W, H, tilt, camAngle, shkX, shkY);
     vfx.drawStuckArrows(g, stuckArrows, w2s, W, H, tilt, shkX, shkY, tSec);
+  }
+  if (window.SakuraEnemies && enemyTelegraphs.length) {
+    window.SakuraEnemies.drawTelegraphs(g, enemyTelegraphs, w2s, W, H, tilt, shkX, shkY, tSec);
   }
 
   // ---- UNIFIED 100% 3D SPRITE-STACKED Y-SORTED QUEUE ----
@@ -8490,9 +9165,9 @@ function loop(ts) {
       const jitY = en.flash > 0.04 ? ((Math.floor(ts * 0.35) & 1) ? 1 : -1) : 0;
       const sq = en.squash || 0;
       const outC = en.isBoss
-        ? (en.frostTimer > 0 ? '#5ce1e6' : OUTLINE_BOSS)
-        : (en.frostTimer > 0 ? '#5ce1e6' : (en.elite ? '#f7c552' : (en.fast ? '#9e2234' : OUTLINE_DUMMY)));
-      const ec = getCachedEnemyStack(en.isBoss, en.frame, rot, tilt, outC);
+        ? (en.frostTimer > 0 ? '#5ce1e6' : (en.outCol || OUTLINE_BOSS))
+        : (en.frostTimer > 0 ? '#5ce1e6' : (en.elite ? '#f7c552' : (en.outCol || OUTLINE_DUMMY)));
+      const ec = getCachedEnemyStack(en.spriteKey || (en.isBoss ? 'boss' : 'dummy'), en.sw || (en.isBoss ? 44 : 28), en.nS || (en.isBoss ? 42 : 26), en.frame, rot, tilt, outC);
       const drawImg = flashCol ? getOrBuildEnemyFlash(ec, flashCol) : ec;
       const ex = Math.round(q.sx + jitX), ey = Math.round(q.sy + jitY);
       if (sq > 0.005) {
@@ -8505,7 +9180,12 @@ function loop(ts) {
       } else {
         g.drawImage(drawImg, ex - ec._ox, ey - ec._oy);
       }
-      const bx = Math.round(q.sx), by = Math.round(q.sy - (en.isBoss ? 48 : 31));
+      if (en.aimTimer > 0.15) {
+        // Crimson warning glint while Yumi archer draws its bow!
+        g.fillStyle = (Math.floor(tSec * 24) & 1) ? '#ffffff' : '#ff4d64';
+        g.fillRect(ex - 1, ey - 18, 3, 3);
+      }
+      const bx = Math.round(q.sx), by = Math.round(q.sy - (en.isBoss ? 48 : (en.nS && en.nS >= 30 ? 36 : 31)));
       if (!en.isBoss && (en.hp < en.maxHp || en === lockedEnemy)) {
         g.fillStyle = '#131223'; g.fillRect(bx - 7, by, 14, 4);
         g.fillStyle = '#4f1522'; g.fillRect(bx - 6, by + 1, 12, 2);
@@ -8561,6 +9241,9 @@ function loop(ts) {
     vfx.drawHitStreaks(g, hitStreaks, w2s, W, H, tilt, camAngle, shkX, shkY);
     vfx.drawLightnings(g, lightnings, w2s, W, H, tilt, shkX, shkY, tSec);
     vfx.drawChronoScreenOverlay(g, W, H, player.chronoTimer, tSec);
+  }
+  if (window.SakuraEnemies && enemyProjectiles.length) {
+    window.SakuraEnemies.drawEnemyProjectiles(g, enemyProjectiles, w2s, W, H, tilt, camAngle, shkX, shkY, tSec);
   }
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];

@@ -21,9 +21,11 @@ python -m http.server 8765 --directory playground
   - 5-layer LRU chunked Wang Tiles moss terrain (`256×256` RAM `Uint32Array` blender), 5-layer pixel-art courtyard & Voronoi Ranbari ruin floors (`playground/modules/courtyard-floor.js`), floor-embedded `0.000°`-locked 3D decor (`bridge`, `ruin_rubble`, `fallen_lantern`), pure-GPU Bayer 4×4 dither bubble for buildings, Outline-Based Normal Maps (`KeyN`), cohesive single-crown tree wind, sub-pixel camera lock, and interactive tall grass & wheat with spring physics.
   - Overhauled pixel-art combat VFX (`playground/modules/combat-vfx.js`): Samurai & Spirit Dragon arrows, Arrow Rain sky mandala & vibrating stuck arrows, Chronos Focus clockface aura, Shadow Dash wind bursts, 3D depth-sorted Iaido slash arcs, orbiting Sakura Blades, fractal Chain Lightning, Amaterasu solar pillars, and Kitsune fire bursts.
 - **Megabonk-Style 3-Source Progression**:
-  - **Level-Up → 9 Onigiri Tomes (`KeyO`)**: Uniform neutral Onigiri rarity in the HUD/inventory, while each Onigiri rolls across 5 strictly distinct stat tiers (`1.0×`–`2.0×`), including Damage, Cooldown, Quantity, Overcrit (`>100%` → `!!`), AoE Size, XP/Magnet, Luck/Gold, Vitality, and Range.
+  - **Level-Up → 10 Onigiri Tomes (`KeyO`)**: Uniform neutral Onigiri rarity in the HUD/inventory, while each Onigiri rolls across 5 strictly distinct stat tiers (`1.0×`–`2.0×`), including Damage, Cooldown, Quantity, Overcrit (`>100%` → `!!`), AoE Size, XP/Magnet, Luck/Gold, Vitality, Range, and **Wind Movement Speed** (`Онигири Ветра`).
   - **Chests → 12 Synergy Relics (`KeyU`)**: Passive procs, chains, and elemental triggers (`Фонарь Духов`, `Кровавый Кристалл`, `Мороз Юки-онны`, `Пламя Кицунэ`, `Молния Райдзина`, `Рикошет Синоби`, `Клинок Иайдо`, `Вихрь Сакуры`, `Светило Аматэрасу`, etc.).
-  - **3D Voxel Altars**: `Каменная Хокора` (`Алтарь Силы`), `Ступа Горинто` (`Алтарь Притяжения`), and `Стела Сэкихи` (`Алтарь Жадности`).
+  - **3D Voxel Altars**: `Каменная Хокора` (`Алтарь Силы` — permanent stat blessings & **+1 Shadow Dash Sprint Charge**), `Ступа Горинто` (`Алтарь Притяжения`), and `Стела Сэкихи` (`Алтарь Жадности`).
+- **5 Enemy Archetypes, 3 Bosses & Multi-Vector Difficulty Scaling (`playground/modules/enemies.js`)**:
+  - Progressive wave/time/depth/altar scaling unlocking `Ashigaru`, `Shinobi` lungers, ranged `Yumi` archers, explosive `Kitsunebi` wisps, heavy `Samurai`, and 3 rotating 3D voxel bosses (**Temple Oni-Golem**, **Spectral Shogun Kurogane**, and **Nine-Tailed Kitsune**) with telegraphed AoE attacks and dodgeable projectiles.
 
 ## Controls
 
