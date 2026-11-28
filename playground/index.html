@@ -696,11 +696,36 @@ const $ = id => document.getElementById(id);
 const GRAVEL = '#dcdfd9', GRAVEL_D = '#c5c9c2', STONE = '#9aa1a4', STONE_D = '#6e757a';
 const OUTLINE_ARCH = '#131223', OUTLINE_DUMMY = '#1a1018', OUTLINE_BOSS = '#140b14';
 
-const SCR_W = 180, SCR_H = 216, SCR_BASE = 160;
+let SCR_W = 180, SCR_H = 216, SCR_BASE = 160;
 const TREE_SCALES = [1.14, 1.28, 1.44, 1.62]; // Larger trees by default (~1.37x avg) with 4 crisp randomized voxel-scale tiers!
 function pickTreeScale(wx, wy) {
   const r = h2Wang(Math.round(wx), Math.round(wy), 913);
   return r < 0.22 ? 1.14 : (r < 0.54 ? 1.28 : (r < 0.82 ? 1.44 : 1.62));
+}
+// Randomized Hondō (Main Worship Hall) scale tiers: 1.0x up to 10.0x footprint area (1.00x .. 3.16x linear)!
+const HONDO_SCALES = [1.0, 1.35, 1.73, 2.24, 2.65, 3.16];
+let initialHondoScaleOverride = (() => {
+  try {
+    const v = parseFloat(new URLSearchParams(location.search).get('hondoScale') || '');
+    return Number.isFinite(v) && v >= 1.0 ? Math.min(3.16, Math.max(1.0, v)) : null;
+  } catch (_) { return null; }
+})();
+function pickHondoScale(wx, wy, maxScale = 3.16) {
+  if (initialHondoScaleOverride !== null) {
+    return Math.min(maxScale, Math.max(1.0, initialHondoScaleOverride));
+  }
+  const eligible = HONDO_SCALES.filter(s => s <= maxScale + 0.01);
+  if (eligible.length <= 1) return 1.0;
+  const r = h2Wang(Math.round(wx), Math.round(wy), 1471 + (typeof currentSeed === 'number' ? currentSeed * 17 : 0));
+  const weights = [0.20, 0.22, 0.20, 0.16, 0.12, 0.10];
+  let totalW = 0;
+  for (let i = 0; i < eligible.length; i++) totalW += weights[i] || 0.10;
+  let acc = 0;
+  for (let i = 0; i < eligible.length; i++) {
+    acc += (weights[i] || 0.10) / totalW;
+    if (r <= acc) return eligible[i];
+  }
+  return eligible[eligible.length - 1];
 }
 const scr = document.createElement('canvas'); scr.width = SCR_W; scr.height = SCR_H;
 const sctx = scr.getContext('2d');
@@ -709,6 +734,23 @@ const octx = scrOut.getContext('2d');
 
 const dithCv = document.createElement('canvas'); dithCv.width = SCR_W; dithCv.height = SCR_H;
 const dctx = dithCv.getContext('2d'); // Pure GPU canvas (ZERO getImageData readback stalls!)
+function ensureScratchSize(reqHalfW, reqTopH, reqBotH) {
+  const needW = Math.max(SCR_W, Math.ceil(reqHalfW) * 2);
+  const needBase = Math.max(SCR_BASE, Math.ceil(reqTopH));
+  const needH = Math.max(SCR_H, needBase + Math.ceil(reqBotH));
+  if (needW === SCR_W && needH === SCR_H && needBase === SCR_BASE) return;
+  SCR_W = needW; SCR_BASE = needBase; SCR_H = needH;
+  scr.width = SCR_W; scr.height = SCR_H;
+  scrOut.width = SCR_W; scrOut.height = SCR_H;
+  dithCv.width = SCR_W; dithCv.height = SCR_H;
+  if (typeof playerRefCv !== 'undefined' && playerRefCv) {
+    playerRefCv.width = SCR_W; playerRefCv.height = SCR_H;
+  }
+  if (typeof normDistBuf !== 'undefined') {
+    normDistBuf = new Float32Array(SCR_W * SCR_H);
+    normSmoothBuf = new Float32Array(SCR_W * SCR_H);
+  }
+}
 const BAYER4 = [
    0,  8,  2, 10,
   12,  4, 14,  6,
@@ -753,6 +795,10 @@ function drawWithPlayerDitherWindow(targetCtx, srcCanvas, drawX, drawY, plSx, pl
   if (lx + DITHER_R < 0 || lx - DITHER_R >= cw || ly + DITHER_R < 0 || ly - DITHER_R >= ch) {
     targetCtx.drawImage(srcCanvas, drawX, drawY);
     return;
+  }
+  if (cw > dithCv.width || ch > dithCv.height) {
+    dithCv.width = Math.max(dithCv.width, cw);
+    dithCv.height = Math.max(dithCv.height, ch);
   }
   dctx.globalCompositeOperation = 'source-over';
   dctx.clearRect(0, 0, cw, ch);
@@ -819,8 +865,8 @@ function pushPlayerGhost(x, y, loDir, hiDir, loAnim, loFrame, hiAnim, hiFrame, c
 // - Point-light vector (ptLx, ptLy) points from the sprite toward the actual nearby lantern/fire in screen space,
 //   so the warm golden rim light ALWAYS illuminates the exact side facing the lantern (never staining interior pixels)!
 let normalMapView = false;
-const normDistBuf = new Float32Array(SCR_W * SCR_H);
-const normSmoothBuf = new Float32Array(SCR_W * SCR_H);
+let normDistBuf = new Float32Array(SCR_W * SCR_H);
+let normSmoothBuf = new Float32Array(SCR_W * SCR_H);
 const SUN_WX = -0.62, SUN_WY = -0.58; // World-space sun direction (North-West)
 
 function getSunScreenVec(cAng) {
@@ -1020,7 +1066,7 @@ function renderSplitArcher(targetCtx, loImg, loRow, loRot, hiImg, hiRow, hiRot, 
   const loC = Math.cos(loRot), loS = Math.sin(loRot);
   const hiC = Math.cos(hiRot), hiS = Math.sin(hiRot);
   sctx.setTransform(1, 0, 0, 1, 0, 0);
-  sctx.clearRect(0, 0, SCR_W, SCR_H);
+  sctx.clearRect(Math.max(0, Math.floor(cx - 34)), Math.max(0, Math.floor(baseY - 52)), 68, 84);
   sctx.imageSmoothingEnabled = false;
   for (let i = 0; i < nSlices; i++) {
     const yPos = Math.round(baseY - i);
@@ -1046,8 +1092,9 @@ function renderWallBay(targetCtx, bayLen, rot, tilt, outlineColor, cx, baseY, su
   // Exact match to pillar stone base radius (rmax = 6.2): wall ends flush at pillar faces without poking through!
   const halfClip = Math.max(16, bayLen * 0.5 - 6.2);
   const off = Math.max(0, halfClip - 22);
+  const clrHW = Math.ceil(halfClip) + 20;
   sctx.setTransform(1, 0, 0, 1, 0, 0);
-  sctx.clearRect(0, 0, SCR_W, SCR_H);
+  sctx.clearRect(Math.max(0, Math.floor(cx - clrHW)), Math.max(0, Math.floor(baseY - nSlices - 40)), clrHW * 2, nSlices + 74);
   sctx.imageSmoothingEnabled = false;
   for (let i = 0; i < nSlices; i++) {
     sctx.save();
@@ -1132,22 +1179,26 @@ function buildStackCanvas(kind, qAng, tilt, wFrame, grassLeanStep, bayLen, grass
   const sliceMax = (isSplitTree && part === 'trunk') ? Math.min(effSlices, canopyStart + 2) : effSlices;
   const srcSliceCap = (isSplitTree && part === 'trunk') ? (pm.canopyZ - 1) : -1;
   const effWFrame = (isSplitTree && part === 'trunk') ? null : wFrame;
-  // Tight bounding-box canvas per sprite size (trunks stay compact; canopies keep full crown bounds with crisp 1px outlines!)
-  const halfW = kind === 'wall_bay'
-    ? Math.min(SCR_W >> 1, Math.ceil(Math.max(16, (bayLen || 64) * 0.5) + 16))
+  // Tight bounding-box canvas per sprite size (dynamically expands scratch buffer for colossal scaled buildings like 10x-area Hondō!)
+  const needHalfW = kind === 'wall_bay'
+    ? Math.ceil(Math.max(16, (bayLen || 64) * 0.5) + 16)
     : ((isSplitTree && part === 'trunk')
-        ? Math.min(SCR_W >> 1, Math.ceil(effSw * 0.45) + 8)
-        : Math.min(SCR_W >> 1, Math.ceil(effSw * 0.72) + 8));
-  const topH = kind === 'wall_bay'
-    ? Math.min(SCR_BASE - 1, pm.slices + 36)
+        ? Math.ceil(effSw * 0.45) + 8
+        : Math.ceil(effSw * 0.72) + 8);
+  const needTopH = kind === 'wall_bay'
+    ? pm.slices + 36
     : ((isSplitTree && part === 'trunk')
-        ? Math.min(SCR_BASE - 1, sliceMax + Math.ceil(effSw * 0.35) + 6)
-        : Math.min(SCR_BASE - 1, effSlices + Math.ceil(effSw * 0.52) + 3));
-  const botH = kind === 'wall_bay'
-    ? Math.min(SCR_H - SCR_BASE - 1, 28)
+        ? sliceMax + Math.ceil(effSw * 0.35) + 6
+        : effSlices + Math.ceil(effSw * 0.52) + 3);
+  const needBotH = kind === 'wall_bay'
+    ? 28
     : ((isSplitTree && part === 'trunk')
-        ? Math.min(SCR_H - SCR_BASE - 1, Math.ceil(effSw * 0.35) + 6)
-        : Math.min(SCR_H - SCR_BASE - 1, Math.ceil(effSw * 0.52) + 4));
+        ? Math.ceil(effSw * 0.35) + 6
+        : Math.ceil(effSw * 0.52) + 4);
+  ensureScratchSize(needHalfW + 8, needTopH + 8, needBotH + 8);
+  const halfW = Math.min(SCR_W >> 1, needHalfW);
+  const topH = Math.min(SCR_BASE - 1, needTopH);
+  const botH = Math.min(SCR_H - SCR_BASE - 1, needBotH);
   const x0 = (SCR_W >> 1) - halfW, y0 = SCR_BASE - topH;
   const c = document.createElement('canvas');
   c.width = halfW * 2; c.height = topH + botH;
@@ -1220,13 +1271,13 @@ function getCachedStack(kind, worldRot, camAngle, tilt, wFrame = null, grassLean
   const pm = PROP_META[kind];
   const isTreeKind = !!(pm && pm.isTree);
   const effPart = (isTreeKind && pm.canopyZ > 0) ? (part || 'full') : 'full';
-  const effScale = isTreeKind ? (scale || 1.28) : 1.0;
-  const sInt = isTreeKind ? Math.round(effScale * 100) : 100;
+  const effScale = isTreeKind ? (scale || 1.28) : (scale || 1.0);
+  const sInt = Math.round(effScale * 100);
   const qBay = kind === 'wall_bay' ? Math.round((bayLen || 64) / 2) * 2 : 0;
   // Share 1 canonical orientation for round organic trees & grass tufts (eliminates 56 redundant cache builds/frame!)
   const effWorldRot = (isGrassKind || isTreeKind) ? 0 : (worldRot || 0);
-  // Crisp 3° lockstep for ALL architecture, walls, ruins, shrines & decor (~0.6px accuracy!), 10° for scaled organic trees, 18° for grass, 30° for tiny XP crystals!
-  const angStep = kind === 'xpgem' ? 30 : (isGrassKind ? 18 : (isTreeKind ? 10 : 3));
+  // Crisp 3° lockstep for ALL architecture, walls, ruins, shrines & decor (~0.6px accuracy!), 6° for colossal scaled Hondō, 10° for scaled organic trees, 18° for grass, 30° for tiny XP crystals!
+  const angStep = kind === 'xpgem' ? 30 : (isGrassKind ? 18 : (isTreeKind ? 10 : ((kind === 'hondo' && effScale > 1.6) ? 6 : 3)));
   const qAng = ((Math.round(((effWorldRot + camAngle) * 180 / Math.PI) / angStep) * angStep) % 360 + 360) % 360;
   const qWRot = ((Math.round((effWorldRot * 180 / Math.PI) / 5) * 5) % 360 + 360) % 360;
   const effWFrame = effPart === 'trunk' ? null : ((wFrame !== null && isCamRotatingFast) ? 0 : wFrame);
@@ -1537,6 +1588,82 @@ function buildProceduralVoxelStrips() {
   IMGS.altar_charge   = makeHokoraAltarStrip();
   IMGS.altar_greed    = makeSekihiAltarStrip();
   IMGS.altar_succ     = makeGorintoAltarStrip();
+
+  // 2d) NATURAL MOSSY GRANITE BOULDER CLUSTER (replaces old zen_rock with toy-soldier gravel base — ZERO disc base!)
+  IMGS.zen_rock = (function makeNaturalZenRockStrip() {
+    const sw = 30, nS = 26;
+    const c = document.createElement('canvas'); c.width = sw * nS; c.height = sw;
+    const g = c.getContext('2d');
+    const mid = sw * 0.5;
+    const rocks = [
+      // Main tall craggy granite monolith leaning slightly NW
+      { cx: -1.8, cy: -1.2, rx: 7.8, ry: 6.4, h: 24, leanX: -0.08, leanY: -0.06, ang: 0.35, lobes: 5, ph: 0.4 },
+      // Companion leaning shoulder boulder on SE side
+      { cx:  5.4, cy:  3.2, rx: 5.5, ry: 4.8, h: 15, leanX:  0.10, leanY:  0.05, ang: -0.5, lobes: 4, ph: 1.7 },
+      // Small grounded granite shard on SW side (anchors naturally to grass or sand!)
+      { cx: -6.4, cy:  4.0, rx: 4.0, ry: 3.4, h:  8, leanX: -0.05, leanY:  0.08, ang: 0.9,  lobes: 3, ph: 2.5 },
+    ];
+    for (let z = 0; z < nS; z++) {
+      const ox = z * sw;
+      for (let y = 0; y < sw; y++) {
+        for (let x = 0; x < sw; x++) {
+          const wx = x + 0.5 - mid, wy = y + 0.5 - mid;
+          let hitRock = null, bestDepth = -99, bestT = 0, bestLx = 0, bestLy = 0;
+          for (let ri = 0; ri < rocks.length; ri++) {
+            const rk = rocks[ri];
+            if (z >= rk.h) continue;
+            const t = z / rk.h; // 0..1
+            // Organic tapered boulder profile: broad rough base, chiseled mid-waist, sculpted peak (ZERO flat disc!)
+            const taper = z === 0 ? 0.96 : (1.0 - Math.pow(t, 1.38) * 0.84);
+            const rcx = rk.cx + z * rk.leanX, rcy = rk.cy + z * rk.leanY;
+            const dx = wx - rcx, dy = wy - rcy;
+            const ca = Math.cos(rk.ang), sa = Math.sin(rk.ang);
+            const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
+            const theta = Math.atan2(ly, lx);
+            // Faceted rocky silhouette planes (irregular angular stone instead of smooth cone)
+            const facet = 1.0 + Math.sin(theta * rk.lobes + rk.ph + z * 0.14) * 0.14 + Math.cos(theta * 3 - rk.ph) * 0.08;
+            const rx = rk.rx * taper * facet, ry = rk.ry * taper * facet;
+            const norm = Math.hypot(lx / Math.max(1, rx), ly / Math.max(1, ry));
+            if (norm <= 1.0) {
+              const depth = 1.0 - norm;
+              if (depth > bestDepth) {
+                bestDepth = depth; hitRock = rk; bestT = t; bestLx = lx; bestLy = ly;
+              }
+            }
+          }
+          if (!hitRock) continue;
+          // Natural weathered granite shading + diagonal rock strata + mossy upper ledges!
+          const strata = Math.sin(wx * 0.45 + wy * 0.35 + z * 0.65);
+          const grain = ((x * 19 + y * 37 + z * 13) & 15);
+          const sunBias = (-bestLx * 0.14 - bestLy * 0.11 + bestT * 0.42);
+          let col;
+          const isMossLedge = (bestT > 0.68 && (bestLx < 2 || bestT > 0.84) && (strata > -0.15 || bestT > 0.86))
+            || (z >= 4 && z <= 10 && bestDepth < 0.28 && wx < 2 && wy < 2 && strata > 0.42);
+          if (isMossLedge) {
+            col = bestT > 0.86 ? '#8cc04a' : (sunBias > 0.12 ? '#689435' : '#496b24');
+          } else if (z <= 1) {
+            // Grounded dark wet-earth stone footing (blends cleanly into forest grass OR zen sand!)
+            col = grain < 5 ? '#353b45' : '#4a5260';
+          } else if (strata < -0.78 && grain < 10) {
+            // Crisp dark granite fissure crack
+            col = '#3d4450';
+          } else if (sunBias > 0.42 && bestDepth < 0.45) {
+            col = '#b8c2d1';
+          } else if (sunBias > 0.15) {
+            col = grain < 3 ? '#adb7c7' : '#909bad';
+          } else if (sunBias > -0.18) {
+            col = grain < 4 ? '#636d7d' : '#747f91';
+          } else {
+            col = grain < 4 ? '#454d5a' : '#555f6e';
+          }
+          g.fillStyle = col;
+          g.fillRect(ox + x, y, 1, 1);
+        }
+      }
+    }
+    return c;
+  })();
+
   // Modular 3D Voxel Ruin Strips (ruin_rubble, fallen_lantern, ruin_wall_stub, broken_torii, ruin_foundation, broken_pillar)
   if (window.SakuraRuinSprites) window.SakuraRuinSprites.buildAll(IMGS);
   // Modular 3D Voxel Enemy Archetypes & Bosses (shinobi, yumi, kitsunebi, samurai, shogun, kitsune_boss)
@@ -4019,22 +4146,25 @@ function addWallSegment(propsArr, wallsArr, xA, yA, xB, yB, gateCoords, isRuined
 }
 
 // Visual screen footprint radius for overlap-free placement at any 3D camera rotation
-function getVisualFootprint(kind) {
-  if (kind === 'pagoda' || kind === 'hondo') return 46;
-  if (kind === 'kura' || kind === 'chashitsu') return 40;
-  if (kind === 'rokkakudo' || kind === 'ruin_foundation') return 36;
-  if (kind === 'chozuya' || kind === 'belfry' || kind === 'bridge' || kind === 'torii' || kind === 'broken_torii') return 30;
+function getVisualFootprint(kind, scale = 1.0) {
+  const s = (scale && scale > 1.01 && kind !== 'sakura' && kind !== 'autumn' && kind !== 'pine') ? scale : 1.0;
+  if (kind === 'pagoda' || kind === 'hondo') return Math.round(46 * s);
+  if (kind === 'kura' || kind === 'chashitsu') return Math.round(40 * s);
+  if (kind === 'rokkakudo' || kind === 'ruin_foundation') return Math.round(36 * s);
+  if (kind === 'chozuya' || kind === 'belfry' || kind === 'bridge' || kind === 'torii' || kind === 'broken_torii') return Math.round(30 * s);
   if (kind === 'sakura' || kind === 'autumn' || kind === 'pine') return 33;
   if (kind === 'nodate_gasa' || kind === 'ido_well' || kind === 'ruin_wall_stub') return 20;
   if (kind === 'ema_rack' || kind === 'zen_rock' || kind === 'tsukubai' || kind === 'bonsai' || kind === 'shishi_odoshi' || kind === 'ruin_rubble' || kind === 'fallen_lantern' || kind === 'broken_pillar') return 18;
   return 14;
 }
 
-function addCyProp(x, y, kind, rot = 0) {
+function addCyProp(x, y, kind, rot = 0, customScale = 1.0) {
   const pm = PROP_META[kind];
   if (pm && pm.isTree) {
     const sc = pickTreeScale(x, y);
     courtyardProps.push({ x, y, kind, rot, scale: sc, r: pm.r * (0.75 + 0.25 * sc) });
+  } else if (customScale && customScale !== 1.0) {
+    courtyardProps.push({ x, y, kind, rot, scale: customScale, r: pm.r * customScale });
   } else {
     courtyardProps.push({ x, y, kind, rot, r: pm.r });
   }
@@ -4058,7 +4188,7 @@ function sanitizeCourtyardProps(propsArr, rects, walls, pondTest = null) {
     for (let oi = 0; oi < propsArr.length; oi++) {
       const o = propsArr[oi];
       if (o === self || o._drop || o.kind === 'wall_bay' || o.kind === 'pillar') continue;
-      const oFoot = getVisualFootprint(o.kind);
+      const oFoot = getVisualFootprint(o.kind, o.scale || 1.0);
       const isTiny = o.kind === 'lantern' || o.kind === 'fallen_lantern' || o.kind === 'ruin_rubble' || o.kind === 'broken_pillar';
       const minD = treeFoot + oFoot + (isTiny ? 2 : 10);
       if (Math.hypot(candX - o.x, candY - o.y) < minD) return false;
@@ -4156,7 +4286,7 @@ function tryAddGrass(targetGrassArr, propsArr, gx, gy, kind, rot, minSpace = 19)
   for (let i = 0; i < propsArr.length; i++) {
     const p = propsArr[i];
     const isTree = p.kind === 'sakura' || p.kind === 'autumn' || p.kind === 'pine';
-    const minD = isTree ? (p.r + 2.5) : Math.max(p.r + 10, getVisualFootprint(p.kind) * 0.58);
+    const minD = isTree ? (p.r + 2.5) : Math.max(p.r + 10, getVisualFootprint(p.kind, p.scale || 1.0) * 0.58);
     const dx = gx - p.x, dy = gy - p.y;
     if (dx * dx + dy * dy < minD * minD) return false;
   }
@@ -4402,6 +4532,8 @@ function generateRandomLevel(seed) {
   const START_TYPES = ['sanctuary', 'ruins', 'crossroads', 'lake'];
   startArchetype = initialStartOverride || START_TYPES[Math.abs(seed) % 4];
   initialStartOverride = null; // allow [G] Новый мир to roll freely after initial load!
+  if (generateRandomLevel._didBoot) initialHondoScaleOverride = null;
+  generateRandomLevel._didBoot = true;
 
   const addPondWithShore = (px, py, sx, sy, shoreBounds, addBridge = true) => {
     hasCentralPond = true;
@@ -4463,7 +4595,7 @@ function generateRandomLevel(seed) {
       for (const p of courtyardProps) {
         const pm0 = PROP_META[p.kind];
         const pad = (pm0 && !pm0.isTree && p.kind !== 'lantern' && p.kind !== 'ruin_rubble') ? 44 : 34;
-        if (Math.hypot(tx - p.x, ty - p.y) < getVisualFootprint(p.kind) + pad) { ok = false; break; }
+        if (Math.hypot(tx - p.x, ty - p.y) < getVisualFootprint(p.kind, p.scale || 1.0) + pad) { ok = false; break; }
       }
       if (!ok) continue;
       const b = sampleBiomeAt(tx, ty).kind;
@@ -4568,17 +4700,45 @@ function generateRandomLevel(seed) {
       addCyProp(pgX + 58, pgY - 44, 'lantern', 0);
       addCyProp(pgX + qPagoda.sx * 96, pgY - 56, 'sakura', rng() * 6.28);
 
-      // SECTOR 3: MAIN WORSHIP HALL (Hondō) + CHOZUYA WATER ABLUTION PAVILION!
+      // SECTOR 3: MAIN WORSHIP HALL (Hondō — randomized 1x..10x footprint area!) + CHOZUYA WATER ABLUTION PAVILION!
       const qHondo = otherQuads[1];
-      const hnX = qHondo.qx, hnY = qHondo.qy - 24;
-      addCyProp(hnX, hnY, 'hondo', 0);
-      for (let hy = hnY + 38; hy <= hnY + 108; hy += 16) steppingStones.push({ x: hnX, y: hy, w: 13, h: 7 });
-      addCyProp(hnX - 42, hnY + 52, 'lantern', 0);
-      addCyProp(hnX + 50, hnY + 52, 'lantern', 0);
-      addCyProp(hnX - 92, hnY + 62, 'chozuya', 0);
-      addCyProp(hnX + 84, hnY + 56, 'ema_rack', 0);
-      addCyProp(hnX - 86, hnY - 22, 'sakura', rng() * 6.28);
-      addCyProp(hnX + 86, hnY - 22, 'sakura', rng() * 6.28);
+      const hondoScale = pickHondoScale(qHondo.qx, qHondo.qy, 3.16);
+      const hnX = hondoScale > 1.35
+        ? Math.round(qHondo.sx * Math.min(204, 174 + (hondoScale - 1.0) * 14))
+        : qHondo.qx;
+      const hnY = hondoScale > 1.35
+        ? Math.round(qHondo.sy > 0 ? Math.min(196, 138 + (hondoScale - 1.0) * 27) : Math.max(-196, -196))
+        : (qHondo.qy - 24);
+      addCyProp(hnX, hnY, 'hondo', 0, hondoScale);
+      const hnFrontY = Math.round(hnY + 38 * hondoScale);
+      for (let hy = hnFrontY; hy <= Math.min(CY_Y1 - 24, hnFrontY + 64); hy += 16) {
+        if (Math.abs(hy) > 22) steppingStones.push({ x: hnX, y: hy, w: 13, h: 7 });
+      }
+      const hnClear = Math.round(28 * hondoScale + 26);
+      const canPlaceNearHondo = (px, py, extraPad = 14) => {
+        if (px < CY_X0 + 30 || px > CY_X1 - 30 || py < CY_Y0 + 30 || py > CY_Y1 - 30) return false;
+        if (Math.abs(px) < 34 || Math.abs(py) < 34) return false;
+        if (Math.hypot(px - hnX, py - hnY) < hnClear + extraPad) return false;
+        for (const al of courtyardAltars) {
+          if (Math.hypot(px - al.x, py - al.y) < 42 + extraPad) return false;
+        }
+        return true;
+      };
+      const lanDx = Math.min(92, Math.round(42 * hondoScale));
+      const lanDy = Math.min(114, Math.round(44 * hondoScale + 8));
+      if (canPlaceNearHondo(hnX - lanDx, hnY + lanDy, 4)) addCyProp(hnX - lanDx, hnY + lanDy, 'lantern', 0);
+      if (canPlaceNearHondo(hnX + lanDx + (hondoScale <= 1.1 ? 8 : 0), hnY + lanDy, 4)) addCyProp(hnX + lanDx + (hondoScale <= 1.1 ? 8 : 0), hnY + lanDy, 'lantern', 0);
+      const chzX = hnX - qHondo.sx * Math.round(76 + 22 * hondoScale);
+      const chzY = hnY + (qHondo.sy > 0 ? Math.round(52 + 12 * hondoScale) : Math.round(56 + 18 * hondoScale));
+      if (canPlaceNearHondo(hondoScale <= 1.25 ? (hnX - 92) : chzX, hondoScale <= 1.25 ? (hnY + 62) : chzY, 18)) {
+        addCyProp(hondoScale <= 1.25 ? (hnX - 92) : chzX, hondoScale <= 1.25 ? (hnY + 62) : chzY, 'chozuya', 0);
+      }
+      const emaX = hondoScale <= 1.25 ? (hnX + 84) : (hnX + qHondo.sx * Math.round(68 + 18 * hondoScale));
+      const emaY = hondoScale <= 1.25 ? (hnY + 56) : (hnY + Math.round(48 + 16 * hondoScale));
+      if (canPlaceNearHondo(emaX, emaY, 12)) addCyProp(emaX, emaY, 'ema_rack', 0);
+      const sakOff = Math.round(64 + 26 * hondoScale);
+      if (canPlaceNearHondo(hnX - sakOff, hnY - 22, 18)) addCyProp(hnX - sakOff, hnY - 22, 'sakura', rng() * 6.28);
+      if (canPlaceNearHondo(hnX + sakOff, hnY - 22, 18)) addCyProp(hnX + sakOff, hnY - 22, 'sakura', rng() * 6.28);
 
       // SECTOR 4: CHASHITSU / KURA / BELFRY & SANDY KARESANSUI DRY ZEN ROCK GARDEN (in ruins: collapsed roofless temple foundation!)
       const qBelfry = otherQuads[2];
@@ -4635,11 +4795,14 @@ function generateRandomLevel(seed) {
       for (let sy = -148; sy <= 25; sy += 18) steppingStones.push({ x: -135, y: sy, w: 12, h: 7 });
 
       // RAISED UPPER STONE TERRACE crowning the North-West Wing!
-      centralTerraces.push({ x0: -255, y0: -292, x1: -15, y1: -162, stairSide: 'south', stairCx: -135, stairW: 48 });
       const topHall = rng() < 0.5 ? 'pagoda' : 'hondo';
-      addCyProp(-135, -228, topHall, 0);
-      addCyProp(-212, -184, 'lantern', 0);
-      addCyProp(-58,  -184, 'lantern', 0);
+      const topHallScale = topHall === 'hondo' ? pickHondoScale(-135, -228, 2.0) : 1.0;
+      const ltHw = topHallScale > 1.2 ? Math.min(138, Math.round(84 + 28 * topHallScale)) : 120;
+      const ltLanOff = topHallScale > 1.2 ? Math.min(122, Math.round(52 + 34 * topHallScale)) : 77;
+      centralTerraces.push({ x0: -135 - ltHw, y0: -292, x1: -135 + ltHw, y1: -162, stairSide: 'south', stairCx: -135, stairW: 48 });
+      addCyProp(-135, -228, topHall, 0, topHallScale);
+      addCyProp(-135 - ltLanOff, -184, 'lantern', 0);
+      addCyProp(-135 + ltLanOff, -184, 'lantern', 0);
 
       // East Wing: Sandy Karesansui Rock Garden + Chashitsu Tea House or Kura + Stone Ido Well!
       const eastKind = rng() < 0.52 ? 'chashitsu' : 'kura';
@@ -4700,11 +4863,14 @@ function generateRandomLevel(seed) {
       for (let sx = -268; sx <= 268; sx += 20) if (Math.abs(sx) > 22) steppingStones.push({ x: sx, y: -40, w: 8, h: 14 });
 
       // GRAND RAISED NORTH STONE TERRACE (y = -302..-148) with wide south granite stairs!
-      centralTerraces.push({ x0: -188, y0: -302, x1: 188, y1: -148, stairSide: 'south', stairCx: 0, stairW: 56 });
       const topMain = rng() < 0.45 ? 'pagoda' : (rng() < 0.78 ? 'hondo' : 'rokkakudo');
-      addCyProp(0, -230, topMain, 0);
-      addCyProp(-96, -182, 'lantern', 0);
-      addCyProp( 96, -182, 'lantern', 0);
+      const topMainScale = topMain === 'hondo' ? pickHondoScale(0, -230, 2.45) : 1.0;
+      const etHw = topMainScale > 1.2 ? Math.min(204, Math.round(140 + 28 * topMainScale)) : 188;
+      const etLanOff = topMainScale > 1.2 ? Math.min(180, Math.round(62 + 44 * topMainScale)) : 96;
+      centralTerraces.push({ x0: -etHw, y0: -302, x1: etHw, y1: -148, stairSide: 'south', stairCx: 0, stairW: 56 });
+      addCyProp(0, -230, topMain, 0, topMainScale);
+      addCyProp(-etLanOff, -182, 'lantern', 0);
+      addCyProp( etLanOff, -182, 'lantern', 0);
 
       // Processional Lantern Avenue
       for (const ly of [-86, 56, 194]) {
@@ -4977,10 +5143,17 @@ function getRegionSpec(rx, ry) {
 
 function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
   const isRuined = rng() < 0.46;
+  const hondoScale = variant === 'courtyard_hondo' ? pickHondoScale(wx0, wy0, 3.16) : 1.0;
   const shapeRoll = rng();
-  const shape = shapeRoll < 0.38 ? 'compact' : (shapeRoll < 0.72 ? 'elongated' : 'l_shape');
-  const hw = shape === 'elongated' ? 194 : (shape === 'l_shape' ? 186 : 168);
-  const hh = shape === 'elongated' ? 154 : (shape === 'l_shape' ? 182 : 168);
+  const shape = (variant === 'courtyard_hondo' && hondoScale > 1.55)
+    ? 'compact'
+    : (shapeRoll < 0.38 ? 'compact' : (shapeRoll < 0.72 ? 'elongated' : 'l_shape'));
+  const hw = (variant === 'courtyard_hondo' && hondoScale > 1.55)
+    ? Math.min(198, Math.round(138 + 20 * hondoScale))
+    : (shape === 'elongated' ? 194 : (shape === 'l_shape' ? 186 : 168));
+  const hh = (variant === 'courtyard_hondo' && hondoScale > 1.55)
+    ? Math.min(194, Math.round(134 + 20 * hondoScale))
+    : (shape === 'elongated' ? 154 : (shape === 'l_shape' ? 182 : 168));
   const x0 = wx0 - hw, x1 = wx0 + hw, y0 = wy0 - hh, y1 = wy0 + hh;
   const variantMeta = {
     courtyard_pagoda:    { name: isRuined ? 'Руины Пагоды' : 'Двор Пагоды',                   theme: 'shrine' },
@@ -5009,11 +5182,13 @@ function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
   };
   chunk.courtyard = cyData;
 
-  function addP(wx, wy, kind, rot = 0) {
+  function addP(wx, wy, kind, rot = 0, customScale = 1.0) {
     const pm = PROP_META[kind];
     if (pm && pm.isTree) {
       const sc = pickTreeScale(wx, wy);
       chunk.props.push({ x: wx, y: wy, kind, rot, scale: sc, r: pm.r * (0.75 + 0.25 * sc) });
+    } else if (customScale && customScale !== 1.0) {
+      chunk.props.push({ x: wx, y: wy, kind, rot, scale: customScale, r: pm.r * customScale });
     } else {
       chunk.props.push({ x: wx, y: wy, kind, rot, r: pm.r });
     }
@@ -5061,13 +5236,25 @@ function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
     addP(wx0 - 112, wy0 + 104, 'sakura', rng() * 6.28);
     if (shape !== 'l_shape') addP(wx0 + 112, wy0 - 94, 'sakura', rng() * 6.28);
   } else if (variant === 'courtyard_hondo') {
-    cyData.terraces.push({ x0: mainX - 66, y0: mainY - 46, x1: mainX + 66, y1: mainY + 42, stairSide: 'south', stairCx: mainX, stairW: 42 });
-    addP(mainX, mainY, 'hondo', 0);
-    addP(mainX - 46, mainY + 62, 'lantern', 0);
-    addP(mainX + 46, mainY + 62, 'lantern', 0);
-    addP(wx0 - 96, wy0 + 72, 'chozuya', 0);
-    addP(wx0 - 114, wy0 - 44, 'sakura', rng() * 6.28);
-    if (shape !== 'l_shape') addP(wx0 + 112, wy0 - 48, 'sakura', rng() * 6.28);
+    const sc = hondoScale;
+    const hMainY = sc > 1.55 ? (wy0 - 18) : mainY;
+    const trHw = Math.min(hw - 32, Math.round(44 + 28 * sc));
+    const trTop = Math.min(hh - 36, Math.round(30 + 24 * sc));
+    const trBot = Math.min(hh - 48, Math.round(28 + 20 * sc));
+    cyData.terraces.push({ x0: mainX - trHw, y0: hMainY - trTop, x1: mainX + trHw, y1: hMainY + trBot, stairSide: 'south', stairCx: mainX, stairW: Math.min(64, Math.round(34 + 10 * sc)) });
+    addP(mainX, hMainY, 'hondo', 0, sc);
+    const lanDx = Math.min(hw - 34, Math.round(36 * sc + 10));
+    const lanDy = Math.min(hh - 34, Math.round(40 * sc + 22));
+    addP(mainX - lanDx, hMainY + lanDy, 'lantern', 0);
+    addP(mainX + lanDx, hMainY + lanDy, 'lantern', 0);
+    if (sc <= 1.85) {
+      addP(wx0 - 96, wy0 + 72, 'chozuya', 0);
+      addP(wx0 - 114, wy0 - 44, 'sakura', rng() * 6.28);
+      if (shape !== 'l_shape') addP(wx0 + 112, wy0 - 48, 'sakura', rng() * 6.28);
+    } else {
+      addP(wx0 - (hw - 44), wy0 + (hh - 46), 'sakura', rng() * 6.28);
+      addP(wx0 + (hw - 44), wy0 - (hh - 48), 'sakura', rng() * 6.28);
+    }
   } else if (variant === 'courtyard_tea') {
     addP(mainX, mainY, 'chashitsu', 0);
     addP(mainX - 46, mainY + 36, 'lantern', 0);
@@ -5138,7 +5325,7 @@ function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
   };
   const altarKind = altarMap[variant] || 'altar_charge';
   const ax = wx0 + (shape === 'l_shape' ? -56 : (variant === 'courtyard_zen' ? -72 : 0));
-  const ay = wy0 + (shape === 'l_shape' ? 92 : 98);
+  const ay = wy0 + (shape === 'l_shape' ? 92 : ((variant === 'courtyard_hondo' && hondoScale > 1.8) ? Math.min(hh - 36, Math.round(78 + 26 * hondoScale)) : 98));
   addP(ax, ay, altarKind, 0);
   chunk.altars.push(makeAltarObj(`cy_${chunk.cx}_${chunk.cy}_${altarKind}`, ax, ay, altarKind));
   if (isRuined) {
@@ -5179,7 +5366,7 @@ function buildProceduralCourtyard(chunk, wx0, wy0, variant, rng) {
     let clear = true;
     for (const p of chunk.props) {
       if (p.kind === 'wall_bay' || p.kind === 'pillar') continue;
-      if (Math.hypot(ix - p.x, iy - p.y) < rad + getVisualFootprint(p.kind) + 10) { clear = false; break; }
+      if (Math.hypot(ix - p.x, iy - p.y) < rad + getVisualFootprint(p.kind, p.scale || 1.0) + 10) { clear = false; break; }
     }
     if (clear) {
       for (const zr of cyData.zenRings) {
@@ -8980,7 +9167,8 @@ function loop(ts) {
           }
         }
         if (Math.hypot(player.x - POND_CX, player.y - POND_CY) < 130) {
-          prctx.clearRect(0, 0, SCR_W, SCR_H);
+          const prX0 = Math.max(0, (SCR_W >> 1) - 36);
+          prctx.clearRect(prX0, Math.max(0, SCR_BASE - 52), 72, 84);
           renderSplitArcher(
             prctx,
             IMGS[player.loAnim + '_lo'], player.loFrame, (player.lowerDir + camAngle) - Math.PI / 2,
@@ -8989,7 +9177,7 @@ function loop(ts) {
           );
           for (let sl = 0; sl < 32; sl += 4) {
             const waveDx = Math.round(Math.sin(sl * 0.45 + tSec * 4.5 + player.x) * 1.6);
-            rctx.drawImage(playerRefCv, 0, SCR_BASE - sl - 4, SCR_W, 4, Math.round(plSx - SCR_W / 2 + waveDx + shkX - rx0), Math.round(plSy + sl * 0.68 + shkY - ry0), SCR_W, 4);
+            rctx.drawImage(playerRefCv, prX0, SCR_BASE - sl - 4, 72, 4, Math.round(plSx - 36 + waveDx + shkX - rx0), Math.round(plSy + sl * 0.68 + shkY - ry0), 72, 4);
           }
         }
         rctx.globalCompositeOperation = 'destination-in';
@@ -9074,8 +9262,10 @@ function loop(ts) {
     const pm = PROP_META[p.kind];
     if (pm.shR <= 0 || isInPond(p.x, p.y)) continue;
     const [sx, sy] = w2s(p.x, p.y, W, H, tilt);
-    if (sx < -70 || sx > W + 70 || sy < -70 || sy > H + 70) continue;
-    addShadowEll(sx + shkX, sy + shkY - (p.zLift || 0), pm.shR * (p.scale || 1), sunShadowOffX, sunShadowOffY);
+    const shR = pm.shR * (p.scale || 1);
+    const shPad = shR > 50 ? Math.ceil(shR + 24) : 70;
+    if (sx < -shPad || sx > W + shPad || sy < -shPad || sy > H + shPad) continue;
+    addShadowEll(sx + shkX, sy + shkY - (p.zLift || 0), shR, sunShadowOffX, sunShadowOffY);
   }
   const [plPtLx, plPtLy, plPtStr] = getPointLightVector(player.x, player.y);
   addShadowEll(
@@ -9169,18 +9359,23 @@ function loop(ts) {
   for (let i = 0; i < activeProps.length; i++) {
     const p = activeProps[i];
     if (floorEmbeddedSet && floorEmbeddedSet.has(p.kind)) continue;
+    const pm = PROP_META[p.kind];
+    const sc = p.scale || 1.0;
+    const extraW = (sc > 1.4 && pm) ? Math.ceil(pm.sw * sc * 0.85) : 0;
     const dx = p.x - rCamX, dy = p.y - rCamY;
-    if (dx > viewWorldR || dx < -viewWorldR || dy > viewWorldR || dy < -viewWorldR) continue;
+    if (dx > viewWorldR + extraW || dx < -(viewWorldR + extraW) || dy > viewWorldR + extraW || dy < -(viewWorldR + extraW)) continue;
     const cx = dx * cCa - dy * cSa, cy = dx * cSa + dy * cCa;
     const sx = hw + cx, sy = hh + cy * tilt;
-    if (sx < -120 || sx > W + 120 || sy < -140 || sy > H + 165) continue;
-    const pm = PROP_META[p.kind];
+    const padX = (sc > 1.4 && pm) ? Math.max(120, Math.ceil(pm.sw * sc * 0.85)) : 120;
+    const padTop = (sc > 1.4 && pm) ? Math.max(140, Math.ceil(pm.sw * sc * 0.65)) : 140;
+    const padBot = (sc > 1.4 && pm) ? Math.max(165, Math.ceil(pm.slices * sc + pm.sw * sc * 0.65)) : 165;
+    if (sx < -padX || sx > W + padX || sy < -padTop || sy > H + padBot) continue;
     if (pm && pm.isTree) {
       visTrees.push({ p, pm, sx, px: sx + shkX, py: sy + shkY - (p.zLift || 0), cy });
     } else {
       const dOff = p.kind === 'bridge' ? -14 : (p.kind === 'pillar' ? 0.25 : 0);
       const pDepth = cy + dOff;
-      visStaticProps.push({ sx, depth: pDepth, hw: pm ? pm.sw * 0.55 : 20 });
+      visStaticProps.push({ sx, depth: pDepth, hw: pm ? pm.sw * 0.55 * sc : 20 });
       queue.push({ kind: 'prop', obj: p, sx: sx + shkX, sy: sy + shkY - (p.zLift || 0), depth: pDepth });
     }
   }
@@ -9329,7 +9524,8 @@ function loop(ts) {
       const altarObj = isAltarProp ? activeAltars.find(a => a.x === p.x && a.y === p.y && a.kind === p.kind) : null;
       const altarUsed = altarObj ? usedAltars.has(altarObj.id) : false;
 
-      if (pm.canDither && q.depth > plDepth - 4 && Math.abs(q.sx - (plSx + shkX)) < 108 && (q.sy > plSy - 30) && (q.sy - 195 < plSy)) {
+      const pcx = plSx + shkX, pcy = plSy + shkY - 16;
+      if (pm.canDither && q.depth > plDepth - 4 && pcx + DITHER_R >= dx && pcx - DITHER_R < dx + srcCanvas.width && pcy + DITHER_R >= dy && pcy - DITHER_R < dy + srcCanvas.height) {
         drawWithPlayerDitherWindow(g, srcCanvas, dx, dy, plSx + shkX, plSy + shkY);
       } else if (altarUsed) {
         g.save(); g.globalAlpha = 0.62;
