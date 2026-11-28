@@ -422,6 +422,7 @@
     <button id="onigiriBtn">Онигири (O)</button>
     <button id="invBtn">Инвентарь (I)</button>
     <button id="camModeBtn" class="active" style="grid-column:span 2">Камера: Мышь (V)</button>
+    <button id="decorOutBtn" style="grid-column:span 2">Обводка декора: ВЫКЛ</button>
   </div>
 </div>
 
@@ -473,10 +474,12 @@
   </div>
 </div>
 
-<script src="./modules/ruin-sprites.js?v=72"></script>
-<script src="./modules/courtyard-floor.js?v=72"></script>
-<script src="./modules/combat-vfx.js?v=72"></script>
-<script src="./modules/enemies.js?v=72"></script>
+<script src="./modules/ruin-sprites.js?v=74"></script>
+<script src="./modules/courtyard-floor.js?v=74"></script>
+<script src="./modules/combat-vfx.js?v=74"></script>
+<script src="./modules/enemies.js?v=74"></script>
+<script src="./modules/biome-nature.js?v=74"></script>
+<script src="./modules/biome-fauna.js?v=74"></script>
 <script>
 const IMAGES_SRC = {
   sakura: 'data:image/png;base64,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',
@@ -571,6 +574,7 @@ const PROP_META = {
   grass_pine_tuft: { sw: 16, slices: 13, outline: '#122114', r:  0.0, shR:  0, isTree: false, canDither: false, reflects: false },
   grass_wheat:     { sw: 18, slices: 22, outline: '#3b2610', r:  0.0, shR:  0, isTree: false, canDither: false, reflects: false },
 };
+if (window.SakuraBiomeNature) Object.assign(PROP_META, window.SakuraBiomeNature.EXTRA_PROP_META);
 const GRASS_KINDS = ['grass_lush', 'grass_wild', 'grass_fern', 'grass_clover', 'grass_flower', 'grass_tall', 'grass_tall_aut', 'grass_tall_pine', 'grass_aut_tuft', 'grass_pine_tuft', 'grass_wheat'];
 
 const ANIM_DEF = {
@@ -823,6 +827,7 @@ function pushPlayerGhost(x, y, loDir, hiDir, loAnim, loFrame, hiAnim, hiFrame, c
 // - Point-light vector (ptLx, ptLy) points from the sprite toward the actual nearby lantern/fire in screen space,
 //   so the warm golden rim light ALWAYS illuminates the exact side facing the lantern (never staining interior pixels)!
 let normalMapView = false;
+let decorOutline = false; // Default OFF: clean borderless painterly world decor (keeps crisp outlines on Heroine, Enemies & Loot!)
 const normDistBuf = new Float32Array(SCR_W * SCR_H);
 const normSmoothBuf = new Float32Array(SCR_W * SCR_H);
 const SUN_WX = -0.62, SUN_WY = -0.58; // World-space sun direction (North-West)
@@ -949,19 +954,24 @@ function finishOutline(targetCtx, outlineColor, flashColor = null, boxHalfW = 46
     const sv = sunVec || [-0.62, -0.58, 0.53];
     applyOutlineNormalShader(x0, y0, bw, bh, sv[0], sv[1], sv[2], ptLx, ptLy, ptStr, isSelfLuminous);
   }
-  octx.globalCompositeOperation = 'source-over';
-  octx.clearRect(x0, y0, bw, bh);
-  octx.drawImage(scr, x0, y0, bw, bh, x0, y0, bw, bh);
-  octx.globalCompositeOperation = 'source-in';
-  octx.fillStyle = normalMapView ? '#1a162b' : outlineColor;
-  octx.fillRect(x0, y0, bw, bh);
-  octx.globalCompositeOperation = 'source-over';
   targetCtx.imageSmoothingEnabled = false;
-  targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0 - 1, y0, bw, bh);
-  targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0 + 1, y0, bw, bh);
-  targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0, y0 - 1, bw, bh);
-  targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0, y0 + 1, bw, bh);
+  if (outlineColor) {
+    octx.globalCompositeOperation = 'source-over';
+    octx.clearRect(x0, y0, bw, bh);
+    octx.drawImage(scr, x0, y0, bw, bh, x0, y0, bw, bh);
+    octx.globalCompositeOperation = 'source-in';
+    octx.fillStyle = normalMapView ? '#1a162b' : outlineColor;
+    octx.fillRect(x0, y0, bw, bh);
+    octx.globalCompositeOperation = 'source-over';
+    targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0 - 1, y0, bw, bh);
+    targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0 + 1, y0, bw, bh);
+    targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0, y0 - 1, bw, bh);
+    targetCtx.drawImage(scrOut, x0, y0, bw, bh, x0, y0 + 1, bw, bh);
+  }
   if (flashColor) {
+    octx.globalCompositeOperation = 'source-over';
+    octx.clearRect(x0, y0, bw, bh);
+    octx.drawImage(scr, x0, y0, bw, bh, x0, y0, bw, bh);
     octx.globalCompositeOperation = 'source-in';
     octx.fillStyle = typeof flashColor === 'string' ? flashColor : '#ffffff';
     octx.fillRect(x0, y0, bw, bh);
@@ -1093,9 +1103,12 @@ const PREWARM_SPECS = [
   ['chashitsu', 0, null], ['chozuya', 0, null], ['kura', 0, null], ['rokkakudo', 0, null],
   ['lantern', 0, null], ['torii', 0, null], ['bridge', 0, null],
   ['altar_charge', 0, null], ['altar_greed', 0, null], ['altar_succ', 0, null],
-  ['sakura', 0, 0, 1.28], ['sakura', 0, 0, 1.44], ['autumn', 0, 0, 1.28], ['pine', 0, 0, 1.28], ['pine', 0, 0, 1.44],
+  ['sakura', 0, 0, 1.28], ['sakura', 0, 0, 1.44], ['sakura_weeping', 0, 0, 1.28], ['bamboo_clump', 0, 0, 1.28],
+  ['autumn', 0, 0, 1.28], ['ginkgo', 0, 0, 1.28], ['maple_burnt', 0, 0, 1.28],
+  ['pine', 0, 0, 1.28], ['pine', 0, 0, 1.44], ['cedar', 0, 0, 1.28], ['pine_gnarled', 0, 0, 1.28],
   ['tsukubai', 0, null], ['ema_rack', 0, null],
-  ['zen_rock', 0, null], ['chest', 0, null], ['xpgem', 0, null],
+  ['zen_rock', 0, null], ['rock_flat', 0, null], ['rock_crag', 0, null], ['rock_mossy', 0, null], ['rock_pebbles', 0, null],
+  ['chest', 0, null], ['xpgem', 0, null],
   ['ido_well', 0, null], ['shishi_odoshi', 0, null],
   ['ruin_rubble', 0, null], ['fallen_lantern', 0, null], ['ruin_wall_stub', 0, null], ['broken_torii', 0, null],
   ['ruin_foundation', 0, null], ['broken_pillar', 0, null],
@@ -1160,11 +1173,13 @@ function buildStackCanvas(kind, qAng, tilt, wFrame, grassLeanStep, bayLen, grass
   c._qAng = qAng;
   const cctx = c.getContext('2d');
   cctx.translate(-x0, -y0);
+  const isPickupKind = kind === 'xpgem' || kind === 'chest';
+  const effOutline = (isPickupKind || decorOutline || normalMapView) ? pm.outline : null;
   if (kind === 'wall_bay') {
-    renderWallBay(cctx, bayLen || 64, qAng * Math.PI / 180, tilt, pm.outline, SCR_W / 2, SCR_BASE, FIXED_PROP_SUN);
+    renderWallBay(cctx, bayLen || 64, qAng * Math.PI / 180, tilt, effOutline, SCR_W / 2, SCR_BASE, FIXED_PROP_SUN);
   } else {
     const isLum = kind === 'lantern' || kind === 'altar_charge' || kind === 'altar_greed' || kind === 'altar_succ';
-    renderSingleStack(cctx, IMGS[kind], pm.sw, pm.slices, 0, qAng * Math.PI / 180, tilt, pm.outline, SCR_W / 2, SCR_BASE, null, effWFrame, grassLeanStep, 0, 0, 0, FIXED_PROP_SUN, isLum, grassTrampleStep, !normalMapView, scale, sliceMin, sliceMax, srcSliceCap);
+    renderSingleStack(cctx, IMGS[kind], pm.sw, pm.slices, 0, qAng * Math.PI / 180, tilt, effOutline, SCR_W / 2, SCR_BASE, null, effWFrame, grassLeanStep, 0, 0, 0, FIXED_PROP_SUN, isLum, grassTrampleStep, !normalMapView, scale, sliceMin, sliceMax, srcSliceCap);
   }
   return c;
 }
@@ -1177,7 +1192,7 @@ function prewarmPropsStep(tilt, tStart) {
   if (prewarmCursor >= totalWork) return;
   if ((performance.now() - tStart) > 7.5) return;
   const tInt = Math.round(tilt * 100);
-  const nmBit = normalMapView ? 1 : 0;
+  const nmBit = (normalMapView ? 2 : 0) | (decorOutline ? 1 : 0);
   let built = 0;
   while (prewarmCursor < totalWork && built < 2 && (performance.now() - tStart) < 9.5) {
     const specIdx = prewarmCursor % PREWARM_SPECS.length;
@@ -1237,7 +1252,7 @@ function getCachedStack(kind, worldRot, camAngle, tilt, wFrame = null, grassLean
   const effWFrame = effPart === 'trunk' ? null : ((wFrame !== null && isCamRotatingFast) ? 0 : wFrame);
   const effLean = (isGrassKind && isCamRotatingFast) ? 0 : grassLeanStep;
   const tInt = Math.round(tilt * 100);
-  const nmBit = normalMapView ? 1 : 0;
+  const nmBit = (normalMapView ? 2 : 0) | (decorOutline ? 1 : 0);
   const baseKey = `${kind}_${effPart}_${qBay}_${sInt}_${tInt}_${nmBit}`;
   // Include quantized world orientation qWRot in lastKey so horizontal (0°) & vertical (90°) walls/torii NEVER cross-contaminate!
   const lastKey = `${baseKey}_${qWRot}`;
@@ -1622,6 +1637,8 @@ function buildProceduralVoxelStrips() {
   if (window.SakuraRuinSprites) window.SakuraRuinSprites.buildAll(IMGS);
   // Modular 3D Voxel Enemy Archetypes & Bosses (shinobi, yumi, kitsunebi, samurai, shogun, kitsune_boss)
   if (window.SakuraEnemies) window.SakuraEnemies.buildAll(IMGS);
+  // Modular 3D Voxel Biome Tree & Natural Rock Varieties (6 new trees + 4 new rocks)
+  if (window.SakuraBiomeNature) window.SakuraBiomeNature.buildAll(IMGS);
 
   // 3) Biome-Matched Interactive Tall Grass & Tuft Strips (Sakura spring, Autumn amber-olive, Pine dark spruce!)
   function makeTallGrassStrip(root0, root1, c0, c1, c2, c3) {
@@ -4113,14 +4130,15 @@ function addWallSegment(propsArr, wallsArr, xA, yA, xB, yB, gateCoords, isRuined
 
 // Visual screen footprint radius for overlap-free placement at any 3D camera rotation
 function getVisualFootprint(kind, scale = 1.0) {
-  const s = (scale && scale > 1.01 && kind !== 'sakura' && kind !== 'autumn' && kind !== 'pine') ? scale : 1.0;
+  const pm = PROP_META[kind];
+  const s = (scale && scale > 1.01 && !(pm && pm.isTree)) ? scale : 1.0;
   if (kind === 'pagoda' || kind === 'hondo') return Math.round(46 * s);
   if (kind === 'kura' || kind === 'chashitsu') return Math.round(40 * s);
   if (kind === 'rokkakudo' || kind === 'ruin_foundation') return Math.round(36 * s);
   if (kind === 'chozuya' || kind === 'belfry' || kind === 'bridge' || kind === 'torii' || kind === 'broken_torii') return Math.round(30 * s);
-  if (kind === 'sakura' || kind === 'autumn' || kind === 'pine') return 33;
+  if (pm && pm.isTree) return 33;
   if (kind === 'nodate_gasa' || kind === 'ido_well' || kind === 'ruin_wall_stub') return 20;
-  if (kind === 'ema_rack' || kind === 'zen_rock' || kind === 'tsukubai' || kind === 'bonsai' || kind === 'shishi_odoshi' || kind === 'ruin_rubble' || kind === 'fallen_lantern' || kind === 'broken_pillar') return 18;
+  if (kind === 'ema_rack' || kind === 'zen_rock' || kind === 'rock_flat' || kind === 'rock_crag' || kind === 'rock_mossy' || kind === 'rock_pebbles' || kind === 'tsukubai' || kind === 'bonsai' || kind === 'shishi_odoshi' || kind === 'ruin_rubble' || kind === 'fallen_lantern' || kind === 'broken_pillar') return 18;
   return 14;
 }
 
@@ -4249,7 +4267,7 @@ function tryAddGrass(targetGrassArr, propsArr, gx, gy, kind, rot, minSpace = 19)
   }
   for (let i = 0; i < propsArr.length; i++) {
     const p = propsArr[i];
-    const isTree = p.kind === 'sakura' || p.kind === 'autumn' || p.kind === 'pine';
+    const isTree = !!(PROP_META[p.kind] && PROP_META[p.kind].isTree);
     const minD = isTree ? (p.r + 2.5) : Math.max(p.r + 10, getVisualFootprint(p.kind, p.scale || 1.0) * 0.58);
     const dx = gx - p.x, dy = gy - p.y;
     if (dx * dx + dy * dy < minD * minD) return false;
@@ -4473,6 +4491,7 @@ function generateRandomLevel(seed) {
   steppingStones.length = 0; mossBeds.length = 0; zenRings.length = 0;
   centralTerraces.length = 0; centralBonusChests.length = 0;
   outerPavilions.length = 0; sakuraPetals.length = 0; waterRipples.length = 0;
+  if (window.SakuraFauna) window.SakuraFauna.reset();
   chunkCache.clear();
   regionCache.clear();
   usedAltars.clear();
@@ -4561,11 +4580,27 @@ function generateRandomLevel(seed) {
       }
       if (!ok) continue;
       const b = sampleBiomeAt(tx, ty).kind;
-      const tk = b === 0 ? 'sakura' : (b === 1 ? 'autumn' : 'pine');
+      const bn = window.SakuraBiomeNature;
+      const tk = bn ? bn.pickTreeForBiome(b, rng) : (b === 0 ? 'sakura' : (b === 1 ? 'autumn' : 'pine'));
       addCyProp(tx, ty, tk, rng() * 6.28);
-      const dKind = tk === 'sakura' ? 'sakura_petals' : (tk === 'autumn' ? 'autumn_leaves' : 'pine_moss');
+      const dKind = bn ? bn.treeDecalKind(tk) : (tk === 'sakura' ? 'sakura_petals' : (tk === 'autumn' ? 'autumn_leaves' : 'pine_moss'));
       courtyardDecals.push({ x: tx, y: ty, kind: dKind, r: 24 + rng() * 10, seed: Math.floor(rng() * 10000) });
       added++;
+    }
+    // Natural biome boulder formations scattered in starting forest wilds
+    if (window.SakuraBiomeNature) {
+      for (let rt = 0, rAdd = 0; rt < 24 && rAdd < 5; rt++) {
+        const rx = Math.round(x0 + rng() * (x1 - x0)), ry = Math.round(y0 + rng() * (y1 - y0));
+        if (avoidFn(rx, ry) || minDistToSteppingStones(rx, ry, steppingStones) < 28) continue;
+        let ok = true;
+        for (const p of courtyardProps) {
+          if (Math.hypot(rx - p.x, ry - p.y) < getVisualFootprint(p.kind, p.scale || 1.0) + 22) { ok = false; break; }
+        }
+        if (!ok) continue;
+        const rk = window.SakuraBiomeNature.pickRockForBiome(sampleBiomeAt(rx, ry).kind, rng);
+        addCyProp(rx, ry, rk, rng() * 6.28);
+        rAdd++;
+      }
     }
     for (let a = 0; a < 90; a++) {
       const gx = x0 + rng() * (x1 - x0), gy = y0 + rng() * (y1 - y0);
@@ -4693,8 +4728,8 @@ function generateRandomLevel(seed) {
       zenRings.push({ x: gCx - 34, y: gCy - 4, rx: 20, ry: 14 });
       zenRings.push({ x: gCx + 34, y: gCy + 5, rx: 20, ry: 14 });
       addCyProp(gCx - 34, gCy - 4, 'zen_rock', 0.2);
-      addCyProp(gCx + 34, gCy + 5, 'zen_rock', 2.1);
-      addCyProp(gCx,      gCy - 8, 'zen_rock', 4.0);
+      addCyProp(gCx + 34, gCy + 5, 'rock_flat', 2.1);
+      addCyProp(gCx,      gCy - 8, 'rock_pebbles', 4.0);
       if (centralCyRuined) {
         addCyProp(pgX - 38, pgY + 72, 'broken_pillar', 0.4);
         addCyProp(hnX + 82, hnY + 94, 'ruin_rubble', 2.4);
@@ -5374,15 +5409,17 @@ function getOrGenerateChunk(cx, cy) {
             if (sampleForestWater(sx2, sy2) < -1) chunk.stones.push({ x: sx2, y: sy2, w: 10, h: 8 });
           }
         }
-        // 2) Mountain Spring Headwater (Исток): 3 mossy zen_rock boulders framing the upstream spring + sacred lantern + lush ferns!
+        // 2) Mountain Spring Headwater (Исток): 3 varied mossy boulders framing the upstream spring + sacred lantern + lush ferns!
         if (inThisChunk(ws.sx, ws.sy)) {
           const rockAngles = [ws.upAng - 0.85, ws.upAng, ws.upAng + 0.85];
+          const springRocks = ['rock_mossy', 'zen_rock', 'rock_flat'];
           for (let ri = 0; ri < rockAngles.length; ri++) {
             const ra = rockAngles[ri];
             const rDist = ws.srcR + 9 + (ri === 1 ? 2 : 0);
             const rxp = ws.sx + Math.cos(ra) * rDist, ryp = ws.sy + Math.sin(ra) * rDist;
             if (sampleForestWater(rxp, ryp) < 1) {
-              chunk.props.push({ x: rxp, y: ryp, kind: 'zen_rock', rot: ra + 1.2, r: PROP_META.zen_rock.r });
+              const rk = springRocks[ri % springRocks.length];
+              chunk.props.push({ x: rxp, y: ryp, kind: rk, rot: ra + 1.2, r: PROP_META[rk].r });
             }
           }
           const lanA = ws.upAng + 1.65;
@@ -5457,25 +5494,29 @@ function getOrGenerateChunk(cx, cy) {
     }
   }
 
-  // ECOLOGICAL TREE BIOME GENERATOR (species purity + biome-authentic grove geometry + 3D floor carpets!)
+  // ECOLOGICAL TREE BIOME GENERATOR (3 distinct species per biome + biome-authentic grove geometry + 3D floor carpets!)
   function pickSpeciesAt(wx, wy) {
     const sb = sampleBiomeAt(wx, wy);
     // Only allow slight neighbor blending right on a narrow biome border (margin < 0.032)
     let b = sb.kind;
     if (sb.margin < 0.032 && rng() < 0.35) b = sb.secondKind;
-    if (b === 0) return 'sakura';                             // Роща Сакуры: pure spring sakura!
-    if (b === 1) return rng() < 0.90 ? 'autumn' : 'pine';     // Осенний Лес: crimson maples + rare pine accent (zero sakura!)
-    return 'pine';                                            // Сосновый Бор: 100% dark conifers!
+    if (window.SakuraBiomeNature) return window.SakuraBiomeNature.pickTreeForBiome(b, rng);
+    if (b === 0) return 'sakura';
+    if (b === 1) return rng() < 0.90 ? 'autumn' : 'pine';
+    return 'pine';
   }
 
   function placeTreeWithDecal(tx, ty, tk, pad = 16) {
     if (!isChunkSpotFree(tx, ty, tk, pad)) return false;
     const sc = pickTreeScale(tx, ty);
     chunk.props.push({ x: tx, y: ty, kind: tk, rot: rng() * 6.28, scale: sc, r: PROP_META[tk].r * (0.75 + 0.25 * sc) });
-    const dKind = tk === 'sakura' ? 'sakura_petals' : (tk === 'autumn' ? 'autumn_leaves' : 'pine_moss');
+    const dKind = window.SakuraBiomeNature
+      ? window.SakuraBiomeNature.treeDecalKind(tk)
+      : (tk === 'sakura' ? 'sakura_petals' : (tk === 'autumn' ? 'autumn_leaves' : 'pine_moss'));
+    const isConifer = tk === 'pine' || tk === 'cedar' || tk === 'pine_gnarled' || tk === 'bamboo_clump';
     chunk.floorDecals.push({
       x: tx, y: ty, kind: dKind,
-      r: ((tk === 'pine' ? 20 : 25) + rng() * 10) * (0.85 + 0.2 * sc),
+      r: ((isConifer ? 20 : 25) + rng() * 10) * (0.85 + 0.2 * sc),
       seed: Math.floor(rng() * 10000),
     });
     return true;
@@ -5533,6 +5574,20 @@ function getOrGenerateChunk(cx, cy) {
         const ty = Math.round(gy + Math.sin(a) * rad);
         placeTreeWithDecal(tx, ty, pickSpeciesAt(tx, ty), 8);
       }
+    }
+  }
+
+  // Natural Biome Rock & Boulder Outcrops (3-5 varied rocky formations per forest chunk — zero toy-soldier discs!)
+  if (window.SakuraBiomeNature) {
+    const targetRocks = chunkBiome === 2 ? 5 : (chunkBiome === 1 ? 4 : 3);
+    for (let tries = 0, rPlaced = 0; tries < 22 && rPlaced < targetRocks; tries++) {
+      const rx = wx0 + Math.round((rng() - 0.5) * (CHUNK_SZ - 56));
+      const ry = wy0 + Math.round((rng() - 0.5) * (CHUNK_SZ - 56));
+      const lb = sampleBiomeAt(rx, ry).kind;
+      const rk = window.SakuraBiomeNature.pickRockForBiome(lb, rng);
+      if (!isChunkSpotFree(rx, ry, rk, 12)) continue;
+      chunk.props.push({ x: rx, y: ry, kind: rk, rot: rng() * 6.28, r: PROP_META[rk].r });
+      rPlaced++;
     }
   }
 
@@ -5672,7 +5727,7 @@ function rebuildActiveWorldLists(centerX, centerY, force = false, chunkRad = 1) 
     if (ap.r > 0) activeSolidProps.push(ap);
     if (ap.kind === 'lantern') activeLanterns.push(ap);
     if (ap.kind === 'bridge') activeBridges.push(ap);
-    if (ap.kind === 'sakura' || ap.kind === 'autumn') activeLeafTrees.push(ap);
+    if (ap.kind === 'sakura' || ap.kind === 'sakura_weeping' || ap.kind === 'autumn' || ap.kind === 'ginkgo' || ap.kind === 'maple_burnt') activeLeafTrees.push(ap);
     if (floorKinds && floorKinds.has(ap.kind) && ap.kind !== 'bridge' && ap.kind !== 'ruin_rubble' && ap.kind !== 'fallen_lantern') activeFloorDecor.push(ap);
   }
   // Build O(1) 64px spatial hash grid for activeGrass (turns 250k grass checks/frame into ~500!)
@@ -5714,18 +5769,21 @@ function spawnSakuraPetal(randomZ = false) {
   const leafTrees = activeLeafTrees.length ? activeLeafTrees : courtyardProps;
   if (!leafTrees.length) return;
   const src = leafTrees[Math.floor(Math.random() * leafTrees.length)];
-  if (src.kind !== 'sakura' && src.kind !== 'autumn') return;
+  if (src.kind !== 'sakura' && src.kind !== 'sakura_weeping' && src.kind !== 'autumn' && src.kind !== 'ginkgo' && src.kind !== 'maple_burnt') return;
   const treeSc = src.scale || 1.28;
   const a = Math.random() * Math.PI * 2, rad = Math.random() * 24 * treeSc;
-  const isAutumn = src.kind === 'autumn';
+  const isGinkgo = src.kind === 'ginkgo';
+  const isAutumn = src.kind === 'autumn' || src.kind === 'maple_burnt';
   sakuraPetals.push({
     x: src.x + Math.cos(a) * rad, y: src.y + Math.sin(a) * rad,
     z: randomZ ? Math.random() * 44 * treeSc : (26 + Math.random() * 20) * treeSc,
     vx: 11 + Math.random() * 14, vy: 6 + Math.random() * 10, vz: -(6 + Math.random() * 6),
     sway: Math.random() * 6.28, landed: false,
-    c: isAutumn
-      ? (Math.random() < 0.45 ? '#e06438' : (Math.random() < 0.72 ? '#f0a642' : '#c43e2d'))
-      : (Math.random() < 0.55 ? '#f8b5c2' : (Math.random() < 0.7 ? '#ffe8ee' : '#ea7b8a')),
+    c: isGinkgo
+      ? (Math.random() < 0.55 ? '#fbd04c' : '#eba82e')
+      : (isAutumn
+          ? (Math.random() < 0.45 ? '#e06438' : (Math.random() < 0.72 ? '#f0a642' : '#c43e2d'))
+          : (Math.random() < 0.55 ? '#f8b5c2' : (Math.random() < 0.7 ? '#ffe8ee' : '#ea7b8a'))),
     groundLife: 2.5 + Math.random() * 3.0,
   });
 }
@@ -8730,6 +8788,15 @@ function loop(ts) {
       }
     }
 
+    if (window.SakuraFauna) {
+      window.SakuraFauna.update(dt, {
+        camX, camY, playerX: player.x, playerY: player.y,
+        hasCentralPond, pondCx: POND_CX, pondCy: POND_CY, pondW: POND_W, pondH: POND_H,
+        isInPond, sampleForestWater, sampleBiomeAt,
+        inCourtyardAt: (x, y) => getCourtyardStateAt(x, y) !== 'open',
+      });
+    }
+
     for (let i = sakuraPetals.length - 1; i >= 0; i--) {
       const pt = sakuraPetals[i];
       if (pt.z > 0.5) {
@@ -9104,6 +9171,9 @@ function loop(ts) {
       g.drawImage(pondRefCv, rx0, ry0);
       g.restore();
     }
+    if (z === 0 && window.SakuraFauna) {
+      window.SakuraFauna.drawKoi(g, w2s, W, H, tilt, camAngle, shkX, shkY);
+    }
   }
 
   // 2) WARM LANTERN LIGHT POOLS & MEGABONK ALTAR CHARGE RINGS ON GROUND + DIRECTIONAL CONTACT SHADOWS
@@ -9327,7 +9397,7 @@ function loop(ts) {
     const sc = p.scale || 1.28;
     queue.push({ kind: 'prop_trunk', obj: p, sx: px, sy: py, depth: cy });
     const canopyHalfW = pm.sw * 0.54 * sc + 8;
-    const canopyReach = Math.round((p.kind === 'pine' ? 48 : 38) * tiltInv);
+    const canopyReach = Math.round(((p.kind === 'pine' || p.kind === 'cedar' || p.kind === 'bamboo_clump') ? 48 : 38) * tiltInv);
     let canopyDepth = cy + 0.5;
     if (Math.abs(plSx - sx) < canopyHalfW && plDepth >= cy - 2 && plDepth < cy + canopyReach) {
       if (plDepth + 0.5 > canopyDepth) canopyDepth = plDepth + 0.5;
@@ -9380,6 +9450,9 @@ function loop(ts) {
     const [sx, sy, depth] = w2s(bd.x, bd.y, W, H, tilt);
     if (sx < -28 || sx > W + 28 || sy < -36 || sy > H + 28) continue;
     queue.push({ kind: 'blessing', obj: bd, sx: sx + shkX, sy: sy + shkY - getElevationAt(bd.x, bd.y), depth });
+  }
+  if (window.SakuraFauna) {
+    window.SakuraFauna.enqueueGroundFauna(queue, w2s, W, H, tilt, shkX, shkY, getElevationAt);
   }
   queue.push({ kind: 'player', sx: plSx + shkX, sy: plSy + shkY - getElevationAt(player.x, player.y), depth: plDepth });
   for (const ar of arrows) {
@@ -9552,6 +9625,8 @@ function loop(ts) {
         const elemMode = nextDragon ? 'dragon' : (stackOf('explosive') > 0 ? 'fire' : (stackOf('frost') > 0 ? 'frost' : 'normal'));
         vfx.drawBowCharge(g, q.sx, q.sy, player.upperDir, camAngle, tilt, player.hiFrame, elemMode, tSec);
       }
+    } else if (q.kind === 'fauna') {
+      if (window.SakuraFauna) window.SakuraFauna.drawGroundCritter(g, q.obj, q.sx, q.sy, camAngle);
     } else if (q.kind === 'arrow') {
       if (vfx) vfx.drawArrow(g, q.obj, q.sx, q.sy, w2s, W, H, tilt, camAngle, shkX, shkY, stackOf('explosive') > 0, stackOf('frost') > 0, tSec);
     } else if (q.kind === 'slash_arc') {
@@ -9595,6 +9670,9 @@ function loop(ts) {
     const sy = hh + (dx * cSa + dy * cCa) * tilt - pt.z;
     if (sx < -4 || sx > W + 4 || sy < -4 || sy > H + 4) continue;
     g.fillStyle = pt.c; g.fillRect(Math.round(sx + shkX), Math.round(sy + shkY), 2, 2);
+  }
+  if (window.SakuraFauna) {
+    window.SakuraFauna.drawAirFauna(g, w2s, W, H, tilt, shkX, shkY);
   }
   const _tTxt0 = performance.now();
   const _vfxMs = _tTxt0 - _tVfx0;
@@ -9695,6 +9773,12 @@ $('chestBtn').onclick = () => { if (!paused && !gameOver) openChestModal('Сун
 if ($('onigiriBtn')) $('onigiriBtn').onclick = () => { if (!paused && !gameOver) openOnigiriModal(`Уровень ${player.lvl}`); };
 $('invBtn').onclick = () => toggleInventoryModal();
 if ($('camModeBtn')) $('camModeBtn').onclick = () => toggleMouseCamMode();
+if ($('decorOutBtn')) $('decorOutBtn').onclick = () => {
+  decorOutline = !decorOutline;
+  $('decorOutBtn').textContent = decorOutline ? 'Обводка декора: ВКЛ' : 'Обводка декора: ВЫКЛ';
+  $('decorOutBtn').classList.toggle('active', decorOutline);
+  clearStackCaches();
+};
 if ($('normBtn')) $('normBtn').onclick = () => { if (!paused && !gameOver) toggleNormalMapView(); };
 $('rerollBtn').onclick = () => rerollUpgradeModal();
 $('closeInvBtn').onclick = () => toggleInventoryModal();
