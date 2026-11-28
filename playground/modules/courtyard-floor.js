@@ -718,7 +718,10 @@
   // inside the EXACT SAME g.scale(1, tilt) + g.rotate(camAngle) world transform as the 5-slice floor!
   // -> 0.000° angular error, ZERO floating, ZERO air-spinning, ZERO stackCache misses!
   // =========================================================================
-  const FLOOR_EMBEDDED_KINDS = new Set(['bridge', 'ruin_rubble', 'fallen_lantern']);
+  // NOTE: Tall 3D voxel structures ('bridge', 'ruin_rubble', 'fallen_lantern') belong in the unified Y-sorted queue
+  // with crisp screen-space finishOutline() so diagonal bridges NEVER get per-slice black outline noise and far-bank
+  // lanterns/trees/characters properly occlude behind them!
+  const FLOOR_EMBEDDED_KINDS = new Set();
 
   function buildFloorDecorAtlas(IMGS, PROP_META) {
     const atlas = {};

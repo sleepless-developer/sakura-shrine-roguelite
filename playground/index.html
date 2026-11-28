@@ -4051,6 +4051,18 @@ function pointInRects(x, y, rects, pad = 0) {
 }
 
 function getElevationAt(x, y) {
+  for (let i = 0; i < activeBridges.length; i++) {
+    const br = activeBridges[i];
+    const dx = x - br.x, dy = y - br.y;
+    if (dx > 34 || dx < -34 || dy > 34 || dy < -34) continue;
+    const rot = br.rot || 0;
+    const ca = Math.cos(-rot), sa = Math.sin(-rot);
+    const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
+    if (Math.abs(lx) <= 28 && Math.abs(ly) <= 13) {
+      const t = lx / 28;
+      return Math.round(7 * (1 - t * t));
+    }
+  }
   for (let i = 0; i < centralTerraces.length; i++) {
     const t = centralTerraces[i];
     if (x >= t.x0 && x <= t.x1 && y >= t.y0 && y <= t.y1) return 2;
@@ -5456,10 +5468,10 @@ function getOrGenerateChunk(cx, cy) {
           chunk.props.push({ x: bx, y: by, kind: 'bridge', rot, r: 0 });
           const nx = Math.cos(rot), ny = Math.sin(rot);
           const px = -ny, py = nx;
-          const l1x = bx + nx * 32 + px * 14, l1y = by + ny * 32 + py * 14;
-          const l2x = bx - nx * 32 - px * 14, l2y = by - ny * 32 - py * 14;
-          if (sampleForestWater(l1x, l1y) < -1) chunk.props.push({ x: l1x, y: l1y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
-          if (sampleForestWater(l2x, l2y) < -1) chunk.props.push({ x: l2x, y: l2y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+          const l1x = bx + nx * 40 + px * 18, l1y = by + ny * 40 + py * 18;
+          const l2x = bx - nx * 40 - px * 18, l2y = by - ny * 40 - py * 18;
+          if (sampleForestWater(l1x, l1y) < -2) chunk.props.push({ x: l1x, y: l1y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
+          if (sampleForestWater(l2x, l2y) < -2) chunk.props.push({ x: l2x, y: l2y, kind: 'lantern', rot: 0, r: PROP_META.lantern.r });
           for (let s = 1; s <= 3; s++) {
             const sx1 = bx + nx * (26 + s * 14), sy1 = by + ny * (26 + s * 14);
             const sx2 = bx - nx * (26 + s * 14), sy2 = by - ny * (26 + s * 14);
@@ -5784,15 +5796,18 @@ function rebuildActiveWorldLists(centerX, centerY, force = false, chunkRad = 1) 
 let activeLeafTrees = [];
 let activeSolidProps = [];
 let activeBridges = [];
+function isOnSingleBridge(br, x, y, padLen = 0, padWid = 0) {
+  const dx = x - br.x, dy = y - br.y;
+  const maxD = 34 + padLen;
+  if (dx > maxD || dx < -maxD || dy > maxD || dy < -maxD) return false;
+  const rot = br.rot || 0;
+  const ca = Math.cos(-rot), sa = Math.sin(-rot);
+  const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
+  return Math.abs(lx) <= (28 + padLen) && Math.abs(ly) <= (13 + padWid);
+}
 function isOnAnyBridge(x, y) {
   for (let i = 0; i < activeBridges.length; i++) {
-    const br = activeBridges[i];
-    const dx = x - br.x, dy = y - br.y;
-    if (dx > 34 || dx < -34 || dy > 34 || dy < -34) continue;
-    const rot = br.rot || 0;
-    const ca = Math.cos(-rot), sa = Math.sin(-rot);
-    const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
-    if (Math.abs(lx) <= 28 && Math.abs(ly) <= 13) return true;
+    if (isOnSingleBridge(activeBridges[i], x, y)) return true;
   }
   return false;
 }
@@ -9351,7 +9366,7 @@ function loop(ts) {
   for (const en of enemies) {
     const [sx, sy, depth] = w2s(en.x, en.y, W, H, tilt);
     if (sx < -45 || sx > W + 45 || sy < -60 || sy > H + 60) continue;
-    visEnemies.push({ sx, depth });
+    visEnemies.push({ x: en.x, y: en.y, sx, depth });
     queue.push({ kind: 'enemy', obj: en, sx: sx + shkX, sy: sy + shkY - getElevationAt(en.x, en.y), depth });
   }
   const visStaticProps = [];
@@ -9372,8 +9387,23 @@ function loop(ts) {
     if (sx < -padX || sx > W + padX || sy < -padTop || sy > H + padBot) continue;
     if (pm && pm.isTree) {
       visTrees.push({ p, pm, sx, px: sx + shkX, py: sy + shkY - (p.zLift || 0), cy });
+    } else if (p.kind === 'bridge') {
+      // True 3D Y-sorted arched bridge: far-bank lanterns/trees draw BEHIND it, near-bank props IN FRONT,
+      // while dynamically dropping under any player/enemy actively walking across its deck!
+      let bDepth = cy;
+      if (isOnSingleBridge(p, player.x, player.y, 2, 1) && plDepth - 0.5 < bDepth) {
+        bDepth = plDepth - 0.5;
+      }
+      for (let ei = 0; ei < visEnemies.length; ei++) {
+        const ve = visEnemies[ei];
+        if (isOnSingleBridge(p, ve.x, ve.y, 2, 1) && ve.depth - 0.5 < bDepth) {
+          bDepth = ve.depth - 0.5;
+        }
+      }
+      visStaticProps.push({ sx, depth: bDepth, hw: pm ? pm.sw * 0.55 * sc : 24 });
+      queue.push({ kind: 'prop', obj: p, sx: sx + shkX, sy: sy + shkY - (p.zLift || 0), depth: bDepth });
     } else {
-      const dOff = p.kind === 'bridge' ? -14 : (p.kind === 'pillar' ? 0.25 : 0);
+      const dOff = p.kind === 'pillar' ? 0.25 : 0;
       const pDepth = cy + dOff;
       visStaticProps.push({ sx, depth: pDepth, hw: pm ? pm.sw * 0.55 * sc : 20 });
       queue.push({ kind: 'prop', obj: p, sx: sx + shkX, sy: sy + shkY - (p.zLift || 0), depth: pDepth });
