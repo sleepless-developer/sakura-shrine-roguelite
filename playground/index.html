@@ -4461,7 +4461,9 @@ function generateRandomLevel(seed) {
       if (minDistToSteppingStones(tx, ty, steppingStones) < 34) continue;
       let ok = true;
       for (const p of courtyardProps) {
-        if (Math.hypot(tx - p.x, ty - p.y) < getVisualFootprint(p.kind) + 28) { ok = false; break; }
+        const pm0 = PROP_META[p.kind];
+        const pad = (pm0 && !pm0.isTree && p.kind !== 'lantern' && p.kind !== 'ruin_rubble') ? 44 : 34;
+        if (Math.hypot(tx - p.x, ty - p.y) < getVisualFootprint(p.kind) + pad) { ok = false; break; }
       }
       if (!ok) continue;
       const b = sampleBiomeAt(tx, ty).kind;
@@ -9155,8 +9157,15 @@ function loop(ts) {
   const hw = W >> 1, hh = H >> 1;
   const viewWorldR = Math.hypot(hw, hh / tilt) + 120;
   const floorEmbeddedSet = window.SakuraCourtyardFloor && window.SakuraCourtyardFloor.FLOOR_EMBEDDED_KINDS;
-  // Tree canopies sit on an elevated canopy layer above the character & enemies while preserving front-to-back order across trees & behind tall pagodas!
-  const treeCanopyDepthOff = Math.round(64 * (0.68 / Math.max(0.48, tilt)));
+  const visEnemies = [];
+  for (const en of enemies) {
+    const [sx, sy, depth] = w2s(en.x, en.y, W, H, tilt);
+    if (sx < -45 || sx > W + 45 || sy < -60 || sy > H + 60) continue;
+    visEnemies.push({ sx, depth });
+    queue.push({ kind: 'enemy', obj: en, sx: sx + shkX, sy: sy + shkY - getElevationAt(en.x, en.y), depth });
+  }
+  const visStaticProps = [];
+  const visTrees = [];
   for (let i = 0; i < activeProps.length; i++) {
     const p = activeProps[i];
     if (floorEmbeddedSet && floorEmbeddedSet.has(p.kind)) continue;
@@ -9167,13 +9176,43 @@ function loop(ts) {
     if (sx < -120 || sx > W + 120 || sy < -140 || sy > H + 165) continue;
     const pm = PROP_META[p.kind];
     if (pm && pm.isTree) {
-      const px = sx + shkX, py = sy + shkY - (p.zLift || 0);
-      queue.push({ kind: 'prop_trunk', obj: p, sx: px, sy: py, depth: cy });
-      queue.push({ kind: 'prop_canopy', obj: p, sx: px, sy: py, depth: cy + treeCanopyDepthOff });
+      visTrees.push({ p, pm, sx, px: sx + shkX, py: sy + shkY - (p.zLift || 0), cy });
     } else {
       const dOff = p.kind === 'bridge' ? -14 : (p.kind === 'pillar' ? 0.25 : 0);
-      queue.push({ kind: 'prop', obj: p, sx: sx + shkX, sy: sy + shkY - (p.zLift || 0), depth: cy + dOff });
+      const pDepth = cy + dOff;
+      visStaticProps.push({ sx, depth: pDepth, hw: pm ? pm.sw * 0.55 : 20 });
+      queue.push({ kind: 'prop', obj: p, sx: sx + shkX, sy: sy + shkY - (p.zLift || 0), depth: pDepth });
     }
+  }
+  // Tree canopies stay in true ground Y-order against buildings & decor (NEVER poking over roofs/lanterns in front!),
+  // while cleanly promoting above the character & enemies actually walking underneath their overhang!
+  const tiltInv = 0.68 / Math.max(0.48, tilt);
+  for (let ti = 0; ti < visTrees.length; ti++) {
+    const tr = visTrees[ti];
+    const { p, pm, sx, px, py, cy } = tr;
+    const sc = p.scale || 1.28;
+    queue.push({ kind: 'prop_trunk', obj: p, sx: px, sy: py, depth: cy });
+    const canopyHalfW = pm.sw * 0.54 * sc + 8;
+    const canopyReach = Math.round((p.kind === 'pine' ? 48 : 38) * tiltInv);
+    let canopyDepth = cy + 0.5;
+    if (Math.abs(plSx - sx) < canopyHalfW && plDepth >= cy - 2 && plDepth < cy + canopyReach) {
+      if (plDepth + 0.5 > canopyDepth) canopyDepth = plDepth + 0.5;
+    }
+    for (let ei = 0; ei < visEnemies.length; ei++) {
+      const ve = visEnemies[ei];
+      if (Math.abs(ve.sx - sx) < canopyHalfW && ve.depth >= cy - 2 && ve.depth < cy + canopyReach) {
+        if (ve.depth + 0.25 > canopyDepth) canopyDepth = ve.depth + 0.25;
+      }
+    }
+    if (canopyDepth > cy + 0.5) {
+      for (let si = 0; si < visStaticProps.length; si++) {
+        const vp = visStaticProps[si];
+        if (vp.depth > cy + 2 && Math.abs(vp.sx - sx) < canopyHalfW + vp.hw) {
+          if (vp.depth - 0.5 < canopyDepth) canopyDepth = vp.depth - 0.5;
+        }
+      }
+    }
+    queue.push({ kind: 'prop_canopy', obj: p, sx: px, sy: py, depth: canopyDepth });
   }
   // Spatial-bucket grass visibility query (iterates ONLY visible 64px cells — zero offscreen scan, zero w2s array GC!)
   const gR = Math.hypot(hw + 20, (hh + 20) / tilt);
@@ -9207,11 +9246,6 @@ function loop(ts) {
     const [sx, sy, depth] = w2s(bd.x, bd.y, W, H, tilt);
     if (sx < -28 || sx > W + 28 || sy < -36 || sy > H + 28) continue;
     queue.push({ kind: 'blessing', obj: bd, sx: sx + shkX, sy: sy + shkY - getElevationAt(bd.x, bd.y), depth });
-  }
-  for (const en of enemies) {
-    const [sx, sy, depth] = w2s(en.x, en.y, W, H, tilt);
-    if (sx < -45 || sx > W + 45 || sy < -60 || sy > H + 60) continue;
-    queue.push({ kind: 'enemy', obj: en, sx: sx + shkX, sy: sy + shkY - getElevationAt(en.x, en.y), depth });
   }
   queue.push({ kind: 'player', sx: plSx + shkX, sy: plSy + shkY - getElevationAt(player.x, player.y), depth: plDepth });
   for (const ar of arrows) {
