@@ -173,8 +173,8 @@
   .inv-slot.common { border-top: 2px solid #8b93a6; }
   .inv-slot.uncommon { border-top: 2px solid #3ecf7a; }
   .inv-slot.rare { border-top: 2px solid #4ea8de; }
-  .inv-slot.epic { border-top: 2px solid #e06c88; }
-  .inv-slot.legend { border-top: 2px solid #f0be4a; box-shadow: inset 0 0 6px rgba(240, 190, 74, 0.25); }
+  .inv-slot.epic { border-top: 2px solid #f0be4a; box-shadow: inset 0 0 6px rgba(240, 190, 74, 0.20); }
+  .inv-slot.legend { border-top: 2px solid #e0485c; box-shadow: inset 0 0 8px rgba(224, 72, 92, 0.28); }
   .slot-cnt {
     position: absolute; bottom: -1px; right: 1px;
     font: 400 11px var(--eui-font); color: #fff;
@@ -262,8 +262,8 @@
   .card:hover { transform: translateY(-4px); background: #1e2432; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 10px 26px rgba(0, 0, 0, 0.45); }
   .card.uncommon { border-top-color: #3ecf7a; }
   .card.rare { border-top-color: #4ea8de; }
-  .card.epic { border-top-color: #e06c88; }
-  .card.legend { border-top-color: #f0be4a; box-shadow: inset 0 2px 22px rgba(240, 190, 74, 0.16), inset 0 0 0 1px rgba(240, 190, 74, 0.28); }
+  .card.epic { border-top-color: #f0be4a; box-shadow: inset 0 2px 18px rgba(240, 190, 74, 0.14), inset 0 0 0 1px rgba(240, 190, 74, 0.22); }
+  .card.legend { border-top-color: #e0485c; box-shadow: inset 0 2px 24px rgba(224, 72, 92, 0.20), inset 0 0 0 1px rgba(224, 72, 92, 0.34); }
   .card-head { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 10px; width: 100%; }
   .card-slot-box {
     width: 88px; height: 88px; flex-shrink: 0; background: radial-gradient(circle at 50% 45%, #1c2230 0%, #0e1118 78%);
@@ -274,8 +274,8 @@
   .card.common .card-slot-box { border-color: #6b7485; }
   .card.uncommon .card-slot-box { border-color: #3ecf7a; box-shadow: inset 0 0 14px rgba(62, 207, 122, 0.14); }
   .card.rare .card-slot-box { border-color: #4ea8de; box-shadow: inset 0 0 14px rgba(78, 168, 222, 0.16); }
-  .card.epic .card-slot-box { border-color: #e06c88; box-shadow: inset 0 0 16px rgba(224, 108, 136, 0.18); }
-  .card.legend .card-slot-box { border-color: #f0be4a; box-shadow: inset 0 0 18px rgba(240, 190, 74, 0.24); }
+  .card.epic .card-slot-box { border-color: #f0be4a; box-shadow: inset 0 0 16px rgba(240, 190, 74, 0.20); }
+  .card.legend .card-slot-box { border-color: #e0485c; box-shadow: inset 0 0 18px rgba(224, 72, 92, 0.28); }
   .card-key {
     position: absolute; top: 10px; right: 10px; background: #10131a;
     color: var(--eui-muted); border: 1px solid var(--eui-hairline);
@@ -285,16 +285,16 @@
   .card.common .card-name { color: #eef1f6; }
   .card.uncommon .card-name { color: #54e894; }
   .card.rare .card-name { color: #6bc4ff; }
-  .card.epic .card-name { color: #ff829e; }
-  .card.legend .card-name { color: #fad05a; }
+  .card.epic .card-name { color: #fad05a; }
+  .card.legend .card-name { color: #ff5c72; }
   .card-lvl { font-size: 14px; color: var(--eui-muted); margin-left: 6px; }
   .card-tiers { display: flex; gap: 4px; justify-content: center; margin: 4px 0 2px; }
   .tier-pip { width: 10px; height: 3px; border-radius: 1px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(0, 0, 0, 0.55); }
   .card.common .tier-pip.on { background: #c4ccdc; }
   .card.uncommon .tier-pip.on { background: #54e894; }
   .card.rare .tier-pip.on { background: #6bc4ff; }
-  .card.epic .tier-pip.on { background: #ff829e; }
-  .card.legend .tier-pip.on { background: #fad05a; }
+  .card.epic .tier-pip.on { background: #fad05a; }
+  .card.legend .tier-pip.on { background: #ff5c72; }
   .card-desc { font-size: 15.5px; color: #d6dceb; line-height: 1.45; max-width: 270px; }
   .kw {
     color: #7cd4ff;
@@ -314,7 +314,7 @@
   .drawer-top { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--eui-muted); margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
   .drawer-sub { text-align: left; font: 400 13px var(--eui-font); color: #dce3ef; margin: 6px 0 5px; letter-spacing: .04em; }
   .drawer-sub.rel { color: var(--eui-gold); margin-top: 8px; }
-  #modalOnigiriGrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+  #modalOnigiriGrid { display: grid; grid-template-columns: repeat(4, minmax(64px, 1fr)); max-width: 340px; gap: 6px; }
   #modalRelicGrid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
   .m-slot {
     height: 46px; background: #151922; border: 1px solid var(--eui-border);
@@ -327,8 +327,8 @@
   .m-slot.common { border-top: 2px solid #8b93a6; }
   .m-slot.uncommon { border-top: 2px solid #3ecf7a; }
   .m-slot.rare { border-top: 2px solid #4ea8de; }
-  .m-slot.epic { border-top: 2px solid #e06c88; }
-  .m-slot.legend { border-top: 2px solid #f0be4a; }
+  .m-slot.epic { border-top: 2px solid #f0be4a; }
+  .m-slot.legend { border-top: 2px solid #e0485c; box-shadow: inset 0 0 8px rgba(224, 72, 92, 0.22); }
   #closeInvBtn, #restartBtn {
     margin-top: 10px; padding: 7px 20px; border: 1px solid var(--eui-border);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
@@ -349,8 +349,8 @@
   #skillTooltip .tt-meta.common { color: #9aa4b8; }
   #skillTooltip .tt-meta.uncommon { color: #4ce08c; }
   #skillTooltip .tt-meta.rare { color: #64bef5; }
-  #skillTooltip .tt-meta.epic { color: #f0829c; }
-  #skillTooltip .tt-meta.legend { color: #f5ca5c; }
+  #skillTooltip .tt-meta.epic { color: #f5ca5c; }
+  #skillTooltip .tt-meta.legend { color: #ff6478; }
   #skillTooltip .tt-meta.onigiri { color: #b8c2d6; }
   #skillTooltip .tt-meta.active { color: var(--eui-cyan); }
   #skillTooltip .tt-desc { font-size: 13px; color: #cfd6e4; line-height: 1.35; }
@@ -369,8 +369,8 @@
   #shrineToast.common { border-left-color: #9aa4b8; }
   #shrineToast.uncommon { border-left-color: #3ecf7a; }
   #shrineToast.rare { border-left-color: #4ea8de; }
-  #shrineToast.epic { border-left-color: #e06c88; }
-  #shrineToast.legend { border-left-color: #f0be4a; }
+  #shrineToast.epic { border-left-color: #f0be4a; }
+  #shrineToast.legend { border-left-color: #e0485c; }
   #shrineToastIcon { width: 28px; height: 28px; flex-shrink: 0; background: #161a22; border: 1px solid var(--eui-border); display: flex; align-items: center; justify-content: center; }
   #shrineToastIcon canvas { width: 22px; height: 22px; image-rendering: pixelated; }
   #shrineToastMeta { font: 400 12px var(--eui-font); letter-spacing: .04em; color: #4ce08c; }
@@ -429,7 +429,7 @@
 <div id="bottomBar">
   <div id="dockWrap">
     <div class="dock-tray onigiri">
-      <div class="dock-lbl">ОНИГИРИ</div>
+      <div class="dock-lbl" id="onigiriDockLbl">ОНИГИРИ 0/4</div>
       <div id="onigiriRow" style="display:flex;gap:3px;"></div>
     </div>
     <div class="dock-tray relics">
@@ -464,7 +464,7 @@
       <div class="drawer-top">
         <span id="buildStatsTxt"></span>
       </div>
-      <div class="drawer-sub">ОНИГИРИ</div>
+      <div class="drawer-sub" id="modalOnigiriSub">ОНИГИРИ (0/4)</div>
       <div id="modalOnigiriGrid"></div>
       <div class="drawer-sub rel">РЕЛИКВИИ</div>
       <div id="modalRelicGrid"></div>
@@ -3334,15 +3334,19 @@ function buildWatershedSpec(sx, sy, ex, ey, bend, rng) {
   const mx = (sx + ex) * 0.5 + px * bend;
   const my = (sy + ey) * 0.5 + py * bend;
   const wobP = rng() * Math.PI * 2;
-  const N = 16;
+  const wobP2 = rng() * Math.PI * 2;
+  const wobAmp = Math.min(34, 14 + len * 0.022);
+  const wobFreq = 2.0 + Math.min(2.6, len / 380);
+  const N = Math.max(16, Math.min(36, Math.round(len / 34)));
   const pts = [];
   for (let i = 0; i <= N; i++) {
     const t = i / N;
     const mt = 1 - t;
     const bx = mt * mt * sx + 2 * mt * t * mx + t * t * ex;
     const by = mt * mt * sy + 2 * mt * t * my + t * t * ey;
-    const wob = Math.sin(t * Math.PI * 2.4 + wobP) * Math.sin(t * Math.PI) * 14;
-    // Natural widening: narrow spring brook (9.5px) -> midstream (17px) -> flared river delta mouth (27px)
+    const env = Math.sin(t * Math.PI);
+    const wob = (Math.sin(t * Math.PI * wobFreq + wobP) * wobAmp + Math.sin(t * Math.PI * (wobFreq * 1.85) + wobP2) * (wobAmp * 0.28)) * env;
+    // Natural widening: narrow spring brook (9.5px) -> midstream (17px) -> flared river delta mouth (28px)
     const hw = 9.5 + t * 8.5 + (t > 0.72 ? Math.pow((t - 0.72) / 0.28, 1.6) * 10.5 : 0);
     pts.push({ x: bx + px * wob, y: by + py * wob, hw });
   }
@@ -3351,8 +3355,8 @@ function buildWatershedSpec(sx, sy, ex, ey, bend, rng) {
   const upAng = Math.atan2(pts[0].y - pts[1].y, pts[0].x - pts[1].x);
   // Mouth: Organic 2-Lobe Forest Lake (Устье) seamlessly joined to the flared river delta!
   const endAng = Math.atan2(pts[N].y - pts[N - 1].y, pts[N].x - pts[N - 1].x);
-  const lakeRadX = 58 + rng() * 20;
-  const lakeRadY = 48 + rng() * 16;
+  const lakeRadX = 60 + rng() * 24;
+  const lakeRadY = 50 + rng() * 20;
   const lakeCx = ex + Math.cos(endAng) * (lakeRadX * 0.58);
   const lakeCy = ey + Math.sin(endAng) * (lakeRadY * 0.58);
   const lake = {
@@ -3362,10 +3366,15 @@ function buildWatershedSpec(sx, sy, ex, ey, bend, rng) {
     rad2X: lakeRadX * 0.76, rad2Y: lakeRadY * 0.74,
     wobF: 3 + Math.floor(rng() * 3), wobP: rng() * 6.283,
   };
-  // Midstream Bridge anchor (t = 0.50)
-  const bPt = pts[N >> 1], bPrev = pts[(N >> 1) - 1], bNext = pts[(N >> 1) + 1];
-  const bTang = Math.atan2(bNext.y - bPrev.y, bNext.x - bPrev.x);
-  const bridge = { x: bPt.x, y: bPt.y, rot: bTang + Math.PI * 0.5 };
+  // Bridges: 1 midstream bridge on medium rivers, 2 evenly spaced bridges on long sweeping rivers (>= 820px)!
+  const makeBridgeAt = (frac) => {
+    const idx = Math.max(2, Math.min(N - 2, Math.round(N * frac)));
+    const bPt = pts[idx], bPrev = pts[idx - 1], bNext = pts[idx + 1];
+    const bTang = Math.atan2(bNext.y - bPrev.y, bNext.x - bPrev.x);
+    return { x: bPt.x, y: bPt.y, rot: bTang + Math.PI * 0.5 };
+  };
+  const bridges = len >= 820 ? [makeBridgeAt(0.35), makeBridgeAt(0.67)] : [makeBridgeAt(0.50)];
+  const bridge = bridges[0];
   let minX = Math.min(sx - srcR - 20, lakeCx - lakeRadX * 1.5);
   let maxX = Math.max(sx + srcR + 20, lakeCx + lakeRadX * 1.5);
   let minY = Math.min(sy - srcR - 20, lakeCy - lakeRadY * 1.5);
@@ -3377,7 +3386,7 @@ function buildWatershedSpec(sx, sy, ex, ey, bend, rng) {
     if (pts[i].y - pad < minY) minY = pts[i].y - pad;
     if (pts[i].y + pad > maxY) maxY = pts[i].y + pad;
   }
-  return { sx, sy, srcR, upAng, ex, ey, pts, lake, bridge, minX, maxX, minY, maxY };
+  return { sx, sy, srcR, upAng, ex, ey, len, pts, lake, bridge, bridges, minX, maxX, minY, maxY };
 }
 
 function getWatershedsForRegion(rx, ry) {
@@ -3388,40 +3397,70 @@ function getWatershedsForRegion(rx, ry) {
   const rng = makeRng((Math.imul(seed, 1664525) ^ Math.imul(rx, 374761393) ^ Math.imul(ry, 668265263) ^ 0x51A7E21) >>> 0);
 
   if (rx === 0 && ry === 0) {
-    // Two complete scenic Spring -> River (+ Bridge) -> Forest Lake watersheds flanking the central sanctuary (100% clear of walls & wheat!)
+    // Two scenic long & randomized Spring -> River (+ 1-2 Bridges) -> Forest Lake watersheds flanking the central sanctuary!
+    // Lengths vary randomly from ~650px up to ~1120px per seed while staying 100% clear of walls & wheat!
     const flipS = rng() < 0.5 ? 1 : -1;
-    out.push(buildWatershedSpec(-250 * flipS, 558, 225 * flipS, 578, (rng() < 0.5 ? 1 : -1) * 52, rng));
+    const spanS = 640 + rng() * 380;
+    const shiftS = (rng() - 0.5) * 110;
+    const yBaseS = 566 + rng() * 42;
+    const bendS = 44 + rng() * 56; // bends gently southward away from the sanctuary wall
+    out.push(buildWatershedSpec(
+      shiftS - spanS * 0.5 * flipS, yBaseS + (rng() - 0.5) * 34,
+      shiftS + spanS * 0.5 * flipS, yBaseS + (rng() - 0.5) * 44,
+      flipS * bendS, rng
+    ));
+
     const flipN = rng() < 0.5 ? 1 : -1;
-    out.push(buildWatershedSpec(245 * flipN, -562, -230 * flipN, -576, (rng() < 0.5 ? 1 : -1) * 50, rng));
+    const spanN = 640 + rng() * 380;
+    const shiftN = (rng() - 0.5) * 110;
+    const yBaseN = -(568 + rng() * 42);
+    const bendN = 44 + rng() * 56; // bends gently northward away from the sanctuary wall
+    out.push(buildWatershedSpec(
+      shiftN + spanN * 0.5 * flipN, yBaseN + (rng() - 0.5) * 34,
+      shiftN - spanN * 0.5 * flipN, yBaseN + (rng() - 0.5) * 44,
+      flipN * bendN, rng
+    ));
     _watershedCache.set(k, out);
     return out;
   }
 
   const regW = REGION_CHUNKS * CHUNK_SZ; // 1260
   const rCx = rx * regW, rCy = ry * regW;
-  const reg = getRegionSpec(rx, ry);
-  const hasCy = reg && reg.feature && reg.feature.startsWith('courtyard_');
-  const cyWx = hasCy ? reg.targetCx * CHUNK_SZ : 1e9;
-  const cyWy = hasCy ? reg.targetCy * CHUNK_SZ : 1e9;
+  // Collect nearby region courtyards so long sweeping rivers (up to 1420px!) NEVER clip through ANY courtyard!
+  const nearbyCys = [];
+  for (let dry = -1; dry <= 1; dry++) {
+    for (let drx = -1; drx <= 1; drx++) {
+      if (rx + drx === 0 && ry + dry === 0) continue;
+      const nReg = getRegionSpec(rx + drx, ry + dry);
+      if (nReg && nReg.feature && nReg.feature.startsWith('courtyard_')) {
+        nearbyCys.push({ x: nReg.targetCx * CHUNK_SZ, y: nReg.targetCy * CHUNK_SZ });
+      }
+    }
+  }
 
-  // Try up to 8 courtyard-free candidate courses inside this macro-region so NO river is EVER cut off!
-  for (let attempt = 0; attempt < 8; attempt++) {
+  // Try up to 12 courtyard-free candidate courses with broad randomized lengths (560px .. 1420px, longer by default!)
+  for (let attempt = 0; attempt < 12; attempt++) {
     const horiz = rng() < 0.5;
     const dir = rng() < 0.5 ? 1 : -1;
-    const span = 370 + rng() * 150;
-    const offA = (rng() - 0.5) * 460;
+    const lenRoll = rng();
+    const rawSpan = lenRoll < 0.20 ? (560 + rng() * 200) : (lenRoll < 0.72 ? (780 + rng() * 320) : (1100 + rng() * 320));
+    const span = attempt >= 9 ? Math.min(rawSpan, 680) : rawSpan;
+    const offA = (rng() - 0.5) * 340;
     const offB = (rng() - 0.5) * 620;
+    const drift = (rng() - 0.5) * Math.min(360, span * 0.34);
     const sx = horiz ? (rCx + offA - dir * span * 0.5) : (rCx + offB);
     const sy = horiz ? (rCy + offB) : (rCy + offA - dir * span * 0.5);
-    const ex = horiz ? (sx + dir * span) : (sx + (rng() - 0.5) * 140);
-    const ey = horiz ? (sy + (rng() - 0.5) * 140) : (sy + dir * span);
-    const bend = (rng() - 0.5) * 150;
+    const ex = horiz ? (sx + dir * span) : (sx + drift);
+    const ey = horiz ? (sy + drift) : (sy + dir * span);
+    const bend = (rng() - 0.5) * Math.min(260, span * 0.28);
     const ws = buildWatershedSpec(sx, sy, ex, ey, bend, rng);
 
     let ok = true;
     const checkPt = (px0, py0, pad) => {
       if (Math.max(Math.abs(px0), Math.abs(py0)) < 465 + pad) return false;
-      if (hasCy && Math.max(Math.abs(px0 - cyWx), Math.abs(py0 - cyWy)) < 255 + pad) return false;
+      for (let ci = 0; ci < nearbyCys.length; ci++) {
+        if (Math.max(Math.abs(px0 - nearbyCys[ci].x), Math.abs(py0 - nearbyCys[ci].y)) < 255 + pad) return false;
+      }
       return true;
     };
     if (!checkPt(ws.sx, ws.sy, ws.srcR + 18) || !checkPt(ws.lake.cx, ws.lake.cy, ws.lake.radX + 18)) ok = false;
@@ -5392,9 +5431,12 @@ function getOrGenerateChunk(cx, cy) {
       const wsList = getWatershedsForRegion(wRx0 + drx, wRy0 + dry);
       for (let wi = 0; wi < wsList.length; wi++) {
         const ws = wsList[wi];
-        // 1) Midstream Arched Wooden Bridge + Twin Bank Lanterns & Stepping Stones
-        if (inThisChunk(ws.bridge.x, ws.bridge.y)) {
-          const bx = ws.bridge.x, by = ws.bridge.y, rot = ws.bridge.rot;
+        // 1) Midstream Arched Wooden Bridge(s) + Twin Bank Lanterns & Stepping Stones (2 bridges on long rivers >= 820px!)
+        const brList = ws.bridges || [ws.bridge];
+        for (let bri = 0; bri < brList.length; bri++) {
+          const br = brList[bri];
+          if (!inThisChunk(br.x, br.y)) continue;
+          const bx = br.x, by = br.y, rot = br.rot;
           chunk.props.push({ x: bx, y: by, kind: 'bridge', rot, r: 0 });
           const nx = Math.cos(rot), ny = Math.sin(rot);
           const px = -ny, py = nx;
@@ -5825,8 +5867,9 @@ const player = {
   walkToggle: false,
   hp: 100, maxHp: 100, hurtCd: 0, kevinCd: 0, squash: 0,
   lvl: 1, xp: 0, xpNext: 23,
-  onigiri: {}, items: {}, stats: defaultPlayerStats(),
+  onigiri: {}, onigiriSlots: [], items: {}, stats: defaultPlayerStats(),
 };
+const MAX_ONIGIRI_SLOTS = 4;
 
 function getMaxDashCharges() { return Math.min(6, 1 + (player.stats.extraDashCharges || 0)); }
 
@@ -6624,7 +6667,11 @@ function rollMegabonkRarity(tier = 'normal', extraLuck = 0) {
 }
 
 function rollOnigiriOffers() {
-  const pool = ONIGIRI_POOL.slice();
+  // Megabonk 4-slot cap: once all 4 Onigiri slots are filled, level-up only rolls upgrades for those 4 locked-in Onigiri!
+  const locked = player.onigiriSlots.length >= MAX_ONIGIRI_SLOTS;
+  const pool = locked
+    ? player.onigiriSlots.map(id => ONIGIRI_BY_ID[id]).filter(Boolean)
+    : ONIGIRI_POOL.slice();
   const picks = [];
   for (let i = 0; i < 3 && pool.length; i++) {
     const idx = Math.floor(Math.random() * pool.length);
@@ -6685,6 +6732,9 @@ function rollChestOffers(tier = 'normal') {
 }
 
 function applyOnigiriUpgrade(id, val) {
+  if (!player.onigiriSlots.includes(id) && player.onigiriSlots.length < MAX_ONIGIRI_SLOTS) {
+    player.onigiriSlots.push(id);
+  }
   player.onigiri[id] = (player.onigiri[id] || 0) + 1;
   const st = player.stats;
   if (id === 'oni_dmg') {
@@ -6733,8 +6783,8 @@ const RARITY_COLORS = {
   common: '#c4ccdc',
   uncommon: '#6ef09e',
   rare: '#7fd4ff',
-  epic: '#ff9aa4',
-  legend: '#fae04b',
+  epic: '#fae04b',
+  legend: '#ff5268',
 };
 
 function rollRandomShrineBlessing(extraLuck = 0) {
@@ -6973,24 +7023,33 @@ function updateModalInventoryDrawer() {
     rBtn.textContent = `🎲 Реролл · ${rerollCost} золота [R]`;
     rBtn.disabled = gold < rerollCost;
   }
+  const oSub = $('modalOnigiriSub');
+  if (oSub) oSub.textContent = `ОНИГИРИ (${player.onigiriSlots.length}/${MAX_ONIGIRI_SLOTS})`;
   const oGrid = $('modalOnigiriGrid');
   oGrid.innerHTML = '';
-  ONIGIRI_POOL.forEach(oni => {
-    const cnt = oniStackOf(oni.id);
+  for (let si = 0; si < MAX_ONIGIRI_SLOTS; si++) {
+    const oniId = player.onigiriSlots[si];
+    const oni = oniId ? ONIGIRI_BY_ID[oniId] : null;
     const cell = document.createElement('div');
-    cell.className = `m-slot ${cnt > 0 ? 'oni-owned' : 'empty'}`;
-    const iconCv = makeIconCanvas(oni.id, 48);
-    if (cnt === 0) iconCv.style.filter = 'grayscale(1) opacity(0.32)';
-    cell.appendChild(iconCv);
-    if (cnt > 0) {
+    if (oni) {
+      const cnt = oniStackOf(oni.id);
+      cell.className = 'm-slot oni-owned';
+      const iconCv = makeIconCanvas(oni.id, 48);
+      cell.appendChild(iconCv);
       const badge = document.createElement('div');
       badge.className = 'slot-cnt';
       badge.textContent = `×${cnt}`;
       cell.appendChild(badge);
+      bindOnigiriTooltip(cell, oni);
+    } else {
+      cell.className = 'm-slot empty';
+      cell.innerHTML = `<span style="font:400 13px var(--eui-font);color:#6b7485;">${si + 1}</span>`;
+      cell.onmouseenter = e => showSkillTooltip(e, `Слот Онигири #${si + 1}`, `Свободно · ${player.onigiriSlots.length}/${MAX_ONIGIRI_SLOTS}`, 'onigiri', 'Заполняется первым выбранным Онигири на повышении уровня. Алтари святынь не ограничены слотами.', '');
+      cell.onmousemove = positionSkillTooltip;
+      cell.onmouseleave = hideSkillTooltip;
     }
-    bindOnigiriTooltip(cell, oni);
     oGrid.appendChild(cell);
-  });
+  }
 
   const rGrid = $('modalRelicGrid');
   rGrid.innerHTML = '';
@@ -7025,11 +7084,16 @@ function renderUpgradeCards(picks) {
     const el = document.createElement('div');
     el.className = `card ${of.rarity}`;
     el.style.animationDelay = `${idx * 75}ms`;
+    const lvlBadge = cur > 0
+      ? `<span class="card-lvl">Ур.${cur + 1}</span>`
+      : (of.mode === 'onigiri' && player.onigiriSlots.length < MAX_ONIGIRI_SLOTS
+          ? `<span class="card-lvl">Слот ${player.onigiriSlots.length + 1}/${MAX_ONIGIRI_SLOTS}</span>`
+          : '');
     el.innerHTML = `<div class="card-key">${idx + 1}</div>
       <div class="card-head">
         <div class="card-slot-box"></div>
         <div>
-          <div class="card-name">${of.name}${cur > 0 ? `<span class="card-lvl">Ур.${cur + 1}</span>` : ''}</div>
+          <div class="card-name">${of.name}${lvlBadge}</div>
           ${tierPips}
         </div>
       </div>
@@ -7156,21 +7220,30 @@ function pickUpgrade(idx) {
 }
 
 function refreshInventoryUI() {
+  const oLbl = $('onigiriDockLbl');
+  if (oLbl) oLbl.textContent = `ОНИГИРИ ${player.onigiriSlots.length}/${MAX_ONIGIRI_SLOTS}`;
   const oRow = $('onigiriRow'); oRow.innerHTML = '';
-  for (const oni of ONIGIRI_POOL) {
-    const cnt = oniStackOf(oni.id);
+  for (let si = 0; si < MAX_ONIGIRI_SLOTS; si++) {
+    const oniId = player.onigiriSlots[si];
+    const oni = oniId ? ONIGIRI_BY_ID[oniId] : null;
     const slot = document.createElement('div');
-    slot.className = `inv-slot ${cnt > 0 ? 'oni-owned' : 'empty'}`;
-    const ic = makeIconCanvas(oni.id, 24);
-    if (cnt === 0) ic.style.filter = 'grayscale(1) opacity(0.32)';
-    slot.appendChild(ic);
-    if (cnt > 0) {
+    if (oni) {
+      const cnt = oniStackOf(oni.id);
+      slot.className = 'inv-slot oni-owned';
+      const ic = makeIconCanvas(oni.id, 24);
+      slot.appendChild(ic);
       const b = document.createElement('div');
       b.className = 'slot-cnt';
       b.textContent = `×${cnt}`;
       slot.appendChild(b);
+      bindOnigiriTooltip(slot, oni);
+    } else {
+      slot.className = 'inv-slot empty';
+      slot.innerHTML = `<span style="font:400 11px var(--eui-font);color:#8b93a6;">${si + 1}</span>`;
+      slot.onmouseenter = e => showSkillTooltip(e, `Слот Онигири #${si + 1}`, `Свободно · ${player.onigiriSlots.length}/${MAX_ONIGIRI_SLOTS}`, 'onigiri', 'Заполняется при выборе Онигири на повышении уровня. Алтари дают любые статы поверх слотов.', '');
+      slot.onmousemove = positionSkillTooltip;
+      slot.onmouseleave = hideSkillTooltip;
     }
-    bindOnigiriTooltip(slot, oni);
     slot.onclick = () => toggleInventoryModal();
     oRow.appendChild(slot);
   }
@@ -7243,7 +7316,7 @@ function resetRun() {
   bossesKilled = 0; bossSpawnCount = 0; lastStageTier = 1; nextSwarmAt = 60; swarmActiveTimer = 0;
   Object.assign(player, {
     x: 0, y: 18, vx: 0, vy: 0, hp: 100, maxHp: 100, hurtCd: 0, kevinCd: 0, squash: 0,
-    lvl: 1, xp: 0, xpNext: calcXpNext(1), onigiri: {}, items: {}, stats: defaultPlayerStats(), shooting: false,
+    lvl: 1, xp: 0, xpNext: calcXpNext(1), onigiri: {}, onigiriSlots: [], items: {}, stats: defaultPlayerStats(), shooting: false,
     dashTimer: 0, dashCd: 0, dashCharges: 1, dashRecharge: 0, dashPostDelay: 0, rainCd: 0, chronoCd: 0, chronoTimer: 0,
   });
   camX = 0; camY = 18; rCamX = 0; rCamY = 18; camKickX = 0; camKickY = 0;
@@ -7257,7 +7330,8 @@ function resetRun() {
     // Reproduces the exact user Wave 21 late-game crowd-clearing build (Kitsune + Raijin Lightning + Tengu Dragon Bow x2 + Sakura Blades x2 + 55 enemies + Boss!)
     runTime = 406; waveNum = 21; difficultyPct = 130; player.lvl = 20; player.xpNext = 99999;
     nextSwarmAt = runTime + 40; bossTimer = 45;
-    player.onigiri = { oni_dmg: 2, oni_cd: 1, oni_qty: 2, oni_crit: 4, oni_size: 2, oni_xp: 3, oni_luck: 1, oni_vit: 2, oni_range: 2, oni_move: 2 };
+    player.onigiri = { oni_dmg: 4, oni_qty: 3, oni_crit: 5, oni_move: 3 };
+    player.onigiriSlots = ['oni_dmg', 'oni_qty', 'oni_crit', 'oni_move'];
     player.items = { wisp: 1, lightning: 1, spirit_bow: 2, blades: 2 };
     Object.assign(player.stats, {
       dmgMul: 1.26, atkSpdAdd: 0.12, extraProj: 2, projSpdAdd: 0.32, rangeMul: 1.26,
