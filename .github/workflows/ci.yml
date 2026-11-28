@@ -50,7 +50,7 @@ jobs:
           for (const m of html.matchAll(/<script[^>]+src=["']([^"']+)["'][^>]*>/gi)) {
             const src = m[1];
             if (/^https?:\/\//i.test(src)) continue;
-            const resolved = path.resolve(pgDir, src);
+            const resolved = path.resolve(pgDir, src.split(/[?#]/)[0]);
             if (!fs.existsSync(resolved)) {
               failures.push(`Missing script asset: ${src}`);
             } else {
@@ -62,7 +62,7 @@ jobs:
           for (const m of html.matchAll(/url\(["']?([^"')]+)["']?\)/gi)) {
             const ref = m[1];
             if (/^(data:|https?:\/\/)/i.test(ref)) continue;
-            const resolved = path.resolve(pgDir, ref);
+            const resolved = path.resolve(pgDir, ref.split(/[?#]/)[0]);
             if (!fs.existsSync(resolved)) {
               failures.push(`Missing CSS asset: ${ref}`);
             } else {
